@@ -4,26 +4,29 @@ import io, { Socket } from "socket.io-client";
 
 export class NetworkClient {
   private socket!: Socket;
-  myId: string | null = null;
+  public myId: string | null = null;
 
-  connect(
+  public connect(
     url: string,
     onHello: (hello: ServerHello) => void,
     onState: (state: ServerState) => void
   ) {
     this.socket = io(url);
     this.socket.on("hello", (data: ServerHello) => {
+      console.log(data);
       this.myId = data.id;
       onHello(data);
     });
-    this.socket.on("state", (state: ServerState) => onState(state));
+    this.socket.on("state", (state: ServerState) => {
+      onState(state);
+    });
   }
 
-  sendInput(msg: InputMsg) {
+  public sendInput(msg: InputMsg) {
     this.socket.emit("input", msg);
   }
 
-  destroy() {
+  public destroy() {
     this.socket?.disconnect();
   }
 }

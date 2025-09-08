@@ -1,4 +1,5 @@
-import { LocalAvatar, RemoteAvatar } from "../entities/Avatar";
+import type { LocalAvatar } from "../entities/LocalAvatar";
+import type { RemoteAvatar } from "../entities/RemoteAvatar";
 import type { InputSample } from "../types/input";
 import type { ServerPlayer } from "../types/server";
 
@@ -9,7 +10,7 @@ export class StateSync {
   ) {}
 
   // Rekonsyliacja własnej pozycji
-  applySelfSnapshot(
+  public applySelfSnapshot(
     sp: ServerPlayer,
     pendingInputs: InputSample[],
     inputToVec: (i: InputSample) => { x: number; y: number },
@@ -27,7 +28,7 @@ export class StateSync {
   }
 
   // Inni gracze – tworzenie i interpolacja
-  applyRemoteSnapshot(players: ServerPlayer[]) {
+  public applyRemoteSnapshot(players: ServerPlayer[]) {
     for (const sp of players) {
       if (this.others.has(sp.id)) {
         this.others.get(sp.id)!.lerpTo(sp.x, sp.y);

@@ -5,4 +5,6 @@ export type InputMsg = {
   left?: boolean;
   right?: boolean;
 };
-export type InputSample = InputMsg & { dt: number };
+export type InputSample = InputMsg & {
+  dt: number;
+};

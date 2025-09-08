@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 import { NetworkClient } from "../net/NetworkClient";
 import { InputController } from "../input/InputController";
-import { LocalAvatar, RemoteAvatar } from "../entities/Avatar";
 import { StateSync } from "../net/StateSync";
 import type { WorldSize } from "../types/world";
 import type { ServerHello, ServerPlayer, ServerState } from "../types/server";
+import { LocalAvatar } from "../entities/LocalAvatar";
+import { RemoteAvatar } from "../entities/RemoteAvatar";
 
 export class NetScene extends Phaser.Scene {
   private net = new NetworkClient();
@@ -48,7 +49,7 @@ export class NetScene extends Phaser.Scene {
           this.world
         );
       } else {
-        // ensure remote
+        // ensure remote avatars
         if (!this.others.has(sp.id)) {
           this.others.set(sp.id, new RemoteAvatar(this, sp.id, sp.x, sp.y));
         }
@@ -99,7 +100,9 @@ export class NetScene extends Phaser.Scene {
   shutdown() {
     this.net.destroy();
     this.me?.destroy();
-    for (const r of this.others.values()) r.destroy();
+    for (const r of this.others.values()) {
+      r.destroy();
+    }
     this.others.clear();
   }
 }

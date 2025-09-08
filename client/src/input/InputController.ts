@@ -15,11 +15,11 @@ export class InputController {
     this.scene = scene;
   }
 
-  init() {
+  public init() {
     this.cursors = this.scene.input.keyboard!.createCursorKeys();
   }
 
-  readCurrent() {
+  public readCurrent() {
     return {
       up: this.cursors.up?.isDown,
       down: this.cursors.down?.isDown,
@@ -28,7 +28,7 @@ export class InputController {
     };
   }
 
-  maybeSend(sender: (msg: InputMsg) => void) {
+  public maybeSend(sender: (msg: InputMsg) => void) {
     const now = this.scene.time.now;
     const input = this.readCurrent();
     const changed =
@@ -48,7 +48,7 @@ export class InputController {
     }
   }
 
-  dropProcessed(seqFromServer: number) {
+  public dropProcessed(seqFromServer: number) {
     this.pending = this.pending.filter((i) => i.seq > seqFromServer);
   }
 }
