@@ -37,7 +37,7 @@ export class InputController {
       this.lastInput?.left !== input.left ||
       this.lastInput?.right !== input.right;
 
-    if (changed || now - this.lastSent >= 50) {
+    if (changed || now - this.lastSent >= import.meta.env.VITE_LAST_MSG_SENT) {
       // ~20 Hz
       const msg: InputMsg = { ...input, seq: ++this.seq };
       const dt = (now - this.lastSent) / 1000 || 0.05;

@@ -1,7 +1,7 @@
 import { Avatar } from "./Avatar";
 
 export class LocalAvatar extends Avatar {
-  private speed = 120;
+  private speed = import.meta.env.VITE_AVATAR_SPEED;
 
   constructor(scene: Phaser.Scene, id: string, x: number, y: number) {
     super(scene, id, x, y, 0x3366ff, 12);

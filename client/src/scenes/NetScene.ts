@@ -14,7 +14,10 @@ export class NetScene extends Phaser.Scene {
   private others = new Map<string, RemoteAvatar>();
   private sync!: StateSync;
 
-  private world: WorldSize = { w: 900, h: 600 };
+  private world: WorldSize = {
+    w: import.meta.env.VITE_SCENE_WIDTH,
+    h: import.meta.env.VITE_SCENE_HEIGHT,
+  };
 
   create() {
     // 1) sieć

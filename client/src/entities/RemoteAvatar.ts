@@ -7,7 +7,11 @@ export class RemoteAvatar extends Avatar {
     super(scene, id, x, y, 0x999999, 10);
   }
 
-  public lerpTo(x: number, y: number, durationMs = 60) {
+  public lerpTo(
+    x: number,
+    y: number,
+    durationMs = import.meta.env.VITE_LERP_DURATION
+  ) {
     this.activeTween?.remove();
     this.activeTween = this.scene.tweens.add({
       targets: this as any, // x/y getter/setter
