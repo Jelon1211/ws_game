@@ -1,104 +1,113 @@
-import express from "express";
-import http from "http";
-import { Server } from "socket.io";
+import express, {Express} from "express";
+import {getAppDetails} from "./api-server/app-details/get-app-details";
+import {assignProcessEnvs} from "./api-server/app-details/assign-process-envs";
+import {Morgan} from "./loggers/morgan/morgan";
+import ConfigBuilder from "./config-builder/config-builder";
+import {Config} from "./config-builder/config.interface";
+import {AppLogger} from "./loggers/logger-service/logger.service";
+import {ErrorLog} from "./loggers/error-log/error-log.instance";
+import {InfoLog} from "./loggers/info-log/info-log.instance";
+import {LoggerLevelEnum} from "./loggers/log-level/logger-level.enum";
+import {ApplicationException} from "./exceptions/application.exception";
+import {ExceptionCodeEnum} from "./exceptions/exception-code.enum";
+import {SecurityHelpers} from "./api-server/security-helpers/security.helpers";
+import {Routes} from "./api-server/main-router/routes.enum";
+import {CheckRouter} from "./api-server/health-check/router/check.router";
+import {MainRouter} from "./api-server/main-router/main.router";
+import {NotFoundRouter} from "./api-server/exception-handling/not-found/not-found.router";
+import {AuthMiddleware} from "./api-server/auth/auth.middleware";
+import {HttpExceptionHandlerService} from "./api-server/exception-handling/http-exception-handler/http.exception-handler.service";
+import {AppSentry} from "./loggers/sentry/sentry";
+import {StrictRequestMiddleware} from "./api-server/auth/strict.request.middleware";
+import {RequestLoggerMiddleware} from "./api-server/logging/request-logger.middleware";
 
-type Vec2 = { x: number; y: number };
-type InputMsg = {
-  up?: boolean;
-  down?: boolean;
-  left?: boolean;
-  right?: boolean;
-  seq: number;
-};
+assignProcessEnvs(__dirname);
 
-const TICK_RATE = 30; // 30 Hz – pętla serwera
-const SNAPSHOT_RATE = 20; // 20 Hz – wysyłanie stanu
-const SPEED = 120; // px/s
-const WORLD: { w: number; h: number } = { w: 900, h: 600 };
+class Server {
+  private readonly config: Config = ConfigBuilder.getConfig().config;
+  private readonly app: Express = express();
+  private readonly appSentry: AppSentry = AppSentry.getInstance(this.app);
+  private readonly logger: AppLogger = AppLogger.getInstance(this.appSentry);
+  private readonly morgan: Morgan = new Morgan(
+    this.app,
+    this.logger.expressStream
+  );
+  private readonly securityHelpers: SecurityHelpers = new SecurityHelpers(
+    this.app
+  );
+  private authMiddleware: AuthMiddleware = new AuthMiddleware(this.app);
+  private strictRequestMiddleware: StrictRequestMiddleware =
+    new StrictRequestMiddleware(this.app);
+  private requestLoggerMiddleware: RequestLoggerMiddleware =
+    new RequestLoggerMiddleware(this.app);
+  private mainRouter: MainRouter = new MainRouter(this.app);
+  private httpExceptionHandler: HttpExceptionHandlerService =
+    new HttpExceptionHandlerService(this.app);
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+  public async start(): Promise<void> {
+    try {
+      this.logger.log(
+        LoggerLevelEnum.INFO,
+        new InfoLog("Application run details.", getAppDetails(__filename))
+      );
 
-type Player = {
-  id: string;
-  pos: Vec2;
-  vel: Vec2;
-  lastProcessedSeq: number;
-};
+      this.morgan.init([Routes.V1 + Routes.CHECK + Routes.PING]);
 
-const players = new Map<string, Player>();
+      this.app.use(express.json());
 
-app.get("/", (_req, res) => res.send("OK"));
+      this.app.use(express.urlencoded({extended: true}));
 
-io.on("connection", (socket) => {
-  const spawn: Player = {
-    id: socket.id,
-    pos: { x: 200 + Math.random() * 200, y: 200 },
-    vel: { x: 0, y: 0 },
-    lastProcessedSeq: 0,
-  };
-  players.set(socket.id, spawn);
+      this.requestLoggerMiddleware.init({
+        excludedRoutes: [
+          Routes.V1 + Routes.CHECK + Routes.PING,
+          Routes.V1 + Routes.CHECK + Routes.TELEMETRY,
+        ],
+      });
 
-  socket.emit("hello", { id: socket.id, world: WORLD });
-  console.log("join", socket.id);
+      this.securityHelpers.setSecureHeaders();
+      this.securityHelpers.initSecureHeadersMiddleware();
 
-  socket.on("input", (msg: InputMsg) => {
-    const p = players.get(socket.id);
-    if (!p) return;
-    // Ustal prędkość wg wejścia (tu bez akceleracji/grawitacji – prosto)
-    let vx = 0,
-      vy = 0;
-    if (msg.left) vx -= SPEED;
-    if (msg.right) vx += SPEED;
-    if (msg.up) vy -= SPEED;
-    if (msg.down) vy += SPEED;
-    p.vel.x = vx;
-    p.vel.y = vy;
-    p.lastProcessedSeq = msg.seq;
-  });
+      this.strictRequestMiddleware.init({
+        excludedRoutes: [
+          Routes.V1 + Routes.CHECK + Routes.PING,
+          Routes.V1 + Routes.CHECK + Routes.TELEMETRY,
+        ],
+      });
 
-  socket.on("disconnect", () => {
-    players.delete(socket.id);
-    console.log("leave", socket.id);
-  });
-});
+      this.authMiddleware.init({
+        excludedRoutes: [
+          Routes.V1 + Routes.CHECK + Routes.PING,
+          Routes.V1 + Routes.CHECK + Routes.TELEMETRY,
+        ],
+      });
 
-// Pętla serwera
-let accTime = 0;
-let last = Date.now();
-let snapshotAccumulator = 0;
+      this.mainRouter.init([
+        new CheckRouter().router,
+        new NotFoundRouter().router,
+      ]);
 
-setInterval(() => {
-  const now = Date.now();
-  const dt = (now - last) / 1000;
-  last = now;
-  accTime += dt;
-  snapshotAccumulator += dt;
+      this.httpExceptionHandler.init();
 
-  // Integracja ruchu
-  for (const p of players.values()) {
-    p.pos.x += p.vel.x * dt;
-    p.pos.y += p.vel.y * dt;
-
-    // Ściany świata
-    p.pos.x = Math.max(0, Math.min(WORLD.w, p.pos.x));
-    p.pos.y = Math.max(0, Math.min(WORLD.h, p.pos.y));
+      this.app.listen(this.config.expressApi.port, () => {
+        this.logger.log(
+          LoggerLevelEnum.INFO,
+          new InfoLog(
+            `API endpoint started at ${this.config.expressApi.bind}:${this.config.expressApi.port}`
+          )
+        );
+      });
+    } catch (err) {
+      const error = new ApplicationException(
+        "Error starting API",
+        ExceptionCodeEnum.EXPRESS_APP__START_ERR,
+        {cause: err}
+      );
+      this.logger.log(LoggerLevelEnum.ERROR, new ErrorLog(error));
+      throw error;
+    }
   }
+}
 
-  // Snapshoty
-  const snapInterval = 1 / SNAPSHOT_RATE;
-  if (snapshotAccumulator >= snapInterval) {
-    snapshotAccumulator = 0;
-    const snapshot = Array.from(players.values()).map((p) => ({
-      id: p.id,
-      x: p.pos.x,
-      y: p.pos.y,
-      lastProcessedSeq: p.lastProcessedSeq,
-    }));
-    io.emit("state", { t: now, players: snapshot });
-  }
-}, 1000 / TICK_RATE);
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("server on", PORT));
+const server = new Server();
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+(() => server.start())();
