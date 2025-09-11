@@ -21,7 +21,11 @@ export class NetScene extends Phaser.Scene {
 
   create() {
     // 1) sieć
-    this.net.connect("http://localhost:3000", this.onHello, this.onState);
+    this.net.connect(
+      import.meta.env.VITE_SERVER_URL,
+      this.onHello,
+      this.onState
+    );
 
     // 2) lokalny avatar (tymczasowo w 300,300 zanim dostaniemy hello/world)
     this.me = new LocalAvatar(this, "local-temp", 300, 300);

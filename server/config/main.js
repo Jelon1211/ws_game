@@ -1,6 +1,6 @@
 const config = (module.exports = {});
 
-config.application = "game_monitoring";
+config.application = "mmo_";
 
 config.expressApi = {
   bind: "",
