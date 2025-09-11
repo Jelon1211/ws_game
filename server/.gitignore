@@ -26,3 +26,4 @@ temp/**
 /build/
 coverage/
 .nyc_output/
+node_modules/
