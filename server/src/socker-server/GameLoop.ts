@@ -1,6 +1,10 @@
 import {Server as IOServer, Socket} from "socket.io";
 
-type Vec2 = {x: number; y: number};
+type Vec2 = {
+  x: number;
+  y: number;
+};
+
 type InputMsg = {
   up?: boolean;
   down?: boolean;
@@ -12,20 +16,25 @@ type InputMsg = {
 const TICK_RATE = 30; // 30 Hz – pętla serwera
 const SNAPSHOT_RATE = 20; // 20 Hz – wysyłanie stanu
 const SPEED = 120; // px/s
+const GRAVITY = 500; // px/s² (siła grawitacji)
+const JUMP_SPEED = -300; // px/s (skok w górę)
 const WORLD = {w: 900, h: 600};
+const FLOOR_Y = WORLD.h; // "ziemia" na dole świata
+const COYOTE_TIME = 100; // ms
 
 type Player = {
   id: string;
   pos: Vec2;
   vel: Vec2;
   lastProcessedSeq: number;
+  onGround: boolean;
+  lastGroundedTime: number;
 };
 
 export class GameLoop {
   private io: IOServer;
   private players: Map<string, Player> = new Map();
 
-  // dokładnie jak u Ciebie
   private last = Date.now();
   private snapshotAccumulator = 0;
 
@@ -34,7 +43,6 @@ export class GameLoop {
   }
 
   public start() {
-    // WS handlers
     this.io.on("connection", (socket: Socket) => {
       this.onJoin(socket);
 
@@ -47,7 +55,6 @@ export class GameLoop {
       });
     });
 
-    // pętla serwera 30 Hz
     setInterval(() => this.tick(), 1000 / TICK_RATE);
   }
 
@@ -69,16 +76,18 @@ export class GameLoop {
     const p = this.players.get(socket.id);
     if (!p) return;
 
-    // identyczny model prędkości jak u Ciebie
-    let vx = 0,
-      vy = 0;
+    let vx = 0;
     if (msg.left) vx -= SPEED;
     if (msg.right) vx += SPEED;
-    if (msg.up) vy -= SPEED;
-    if (msg.down) vy += SPEED;
 
     p.vel.x = vx;
-    p.vel.y = vy;
+
+    // Skok tylko jeśli stoi na ziemi
+    if (msg.up && p.onGround) {
+      p.vel.y = JUMP_SPEED;
+      p.onGround = false;
+    }
+
     p.lastProcessedSeq = msg.seq;
   }
 
@@ -93,15 +102,26 @@ export class GameLoop {
     this.last = now;
     this.snapshotAccumulator += dt;
 
-    // Integracja ruchu + ściany świata (1:1)
     for (const p of this.players.values()) {
+      // grawitacja
+      p.vel.y += GRAVITY * dt;
+
+      // integracja
       p.pos.x += p.vel.x * dt;
       p.pos.y += p.vel.y * dt;
+
+      // ściany poziome
       p.pos.x = Math.max(0, Math.min(WORLD.w, p.pos.x));
-      p.pos.y = Math.max(0, Math.min(WORLD.h, p.pos.y));
+
+      // ziemia
+      if (p.pos.y >= FLOOR_Y) {
+        p.pos.y = FLOOR_Y;
+        p.vel.y = 0;
+        p.onGround = true;
+      }
     }
 
-    // Snapshoty 20 Hz (1:1)
+    // snapshoty (jak było)
     const snapInterval = 1 / SNAPSHOT_RATE;
     if (this.snapshotAccumulator >= snapInterval) {
       this.snapshotAccumulator = 0;
