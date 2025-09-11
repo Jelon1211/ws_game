@@ -1,11 +1,9 @@
 import {Router, Request, Response, NextFunction} from "express";
 import {Routes} from "../../main-router/routes.enum";
-import {CheckService} from "../services/check.service";
 import {HttpException} from "../../../exceptions/http.exception";
 
 export class CheckRouter {
   private readonly checkRouter = Router();
-  private readonly checkService = new CheckService();
 
   constructor() {
     this.checkRouter.get(
@@ -23,8 +21,7 @@ export class CheckRouter {
         next: NextFunction
       ): Promise<void> => {
         try {
-          const telemetry = await this.checkService.getTelemetry();
-          res.status(200).send(telemetry);
+          res.status(200);
         } catch (err) {
           const error = new HttpException("Internal server error", 500, {
             cause: err,

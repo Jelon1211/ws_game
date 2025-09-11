@@ -1,4 +1,6 @@
 import express, {Express} from "express";
+import {createServer, Server as HttpServer} from "http";
+import {Server as ColyseusServer} from "colyseus";
 import {getAppDetails} from "./api-server/app-details/get-app-details";
 import {assignProcessEnvs} from "./api-server/app-details/assign-process-envs";
 import {Morgan} from "./loggers/morgan/morgan";
@@ -20,6 +22,8 @@ import {HttpExceptionHandlerService} from "./api-server/exception-handling/http-
 import {AppSentry} from "./loggers/sentry/sentry";
 import {StrictRequestMiddleware} from "./api-server/auth/strict.request.middleware";
 import {RequestLoggerMiddleware} from "./api-server/logging/request-logger.middleware";
+import {MyRoom} from "./rooms/MyRoom";
+import {WebSocketTransport} from "@colyseus/ws-transport";
 
 assignProcessEnvs(__dirname);
 
@@ -43,6 +47,9 @@ class Server {
   private mainRouter: MainRouter = new MainRouter(this.app);
   private httpExceptionHandler: HttpExceptionHandlerService =
     new HttpExceptionHandlerService(this.app);
+
+  private httpServer!: HttpServer;
+  private gameServer!: ColyseusServer;
 
   public async start(): Promise<void> {
     try {
@@ -88,14 +95,32 @@ class Server {
 
       this.httpExceptionHandler.init();
 
-      this.app.listen(this.config.expressApi.port, () => {
-        this.logger.log(
-          LoggerLevelEnum.INFO,
-          new InfoLog(
-            `API endpoint started at ${this.config.expressApi.bind}:${this.config.expressApi.port}`
-          )
-        );
+      this.httpServer = createServer(this.app);
+
+      this.gameServer = new ColyseusServer({
+        transport: new WebSocketTransport({
+          server: this.httpServer,
+          // tutaj możesz też przenieść pingInterval, pingMaxRetries, verifyClient itd.
+          // pingInterval: 5000,
+          // pingMaxRetries: 3,
+          // verifyClient: (info, next) => { ... }
+        }),
       });
+
+      this.gameServer.define("game_room", MyRoom);
+
+      this.httpServer.listen(
+        this.config.expressApi.port,
+        this.config.expressApi.bind,
+        () => {
+          this.logger.log(
+            LoggerLevelEnum.INFO,
+            new InfoLog(
+              `API + Colyseus started at ${this.config.expressApi.bind}:${this.config.expressApi.port}`
+            )
+          );
+        }
+      );
     } catch (err) {
       const error = new ApplicationException(
         "Error starting API",

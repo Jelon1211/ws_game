@@ -5,8 +5,7 @@ export class NotFoundRouter {
   private readonly notFoundRouter = Router();
 
   constructor() {
-    this.notFoundRouter.all(
-      `*`,
+    this.notFoundRouter.use(
       (_req: Request, _res: Response, next: NextFunction) => {
         next(new HttpException("Not found", 404));
       }
