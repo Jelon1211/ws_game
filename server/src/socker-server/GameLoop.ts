@@ -20,7 +20,7 @@ const GRAVITY = 500; // px/s² (siła grawitacji)
 const JUMP_SPEED = -300; // px/s (skok w górę)
 const WORLD = {w: 900, h: 600};
 const FLOOR_Y = WORLD.h; // "ziemia" na dole świata
-const COYOTE_TIME = 100; // ms
+const COYOTE_TIME = 500; // ms
 
 type Player = {
   id: string;
@@ -64,10 +64,11 @@ export class GameLoop {
       pos: {x: 200 + Math.random() * 200, y: 200},
       vel: {x: 0, y: 0},
       lastProcessedSeq: 0,
+      onGround: false,
+      lastGroundedTime: -Infinity,
     };
     this.players.set(socket.id, spawn);
 
-    // identycznie jak wcześniej
     socket.emit("hello", {id: socket.id, world: WORLD});
     console.log("join", socket.id);
   }
@@ -82,15 +83,20 @@ export class GameLoop {
 
     p.vel.x = vx;
 
-    // Skok tylko jeśli stoi na ziemi
-    if (msg.up && p.onGround) {
+    const now = Date.now();
+
+    // coyote time check
+    const canJump = p.onGround || now - p.lastGroundedTime <= COYOTE_TIME;
+
+    if (msg.up && canJump) {
+      console.log("jump", socket.id);
       p.vel.y = JUMP_SPEED;
       p.onGround = false;
+      p.lastGroundedTime = -Infinity;
     }
 
     p.lastProcessedSeq = msg.seq;
   }
-
   private onLeave(socket: Socket) {
     this.players.delete(socket.id);
     console.log("leave", socket.id);
@@ -117,11 +123,19 @@ export class GameLoop {
       if (p.pos.y >= FLOOR_Y) {
         p.pos.y = FLOOR_Y;
         p.vel.y = 0;
+
+        if (!p.onGround) {
+          // właśnie dotknął ziemi
+          p.lastGroundedTime = now;
+        }
+
         p.onGround = true;
+      } else {
+        p.onGround = false;
       }
     }
 
-    // snapshoty (jak było)
+    // snapshoty
     const snapInterval = 1 / SNAPSHOT_RATE;
     if (this.snapshotAccumulator >= snapInterval) {
       this.snapshotAccumulator = 0;
