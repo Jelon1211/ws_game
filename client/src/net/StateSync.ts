@@ -1,3 +1,4 @@
+// src/net/StateSync.ts
 import type { LocalAvatar } from "../entities/LocalAvatar";
 import type { RemoteAvatar } from "../entities/RemoteAvatar";
 import type { InputSample } from "../types/input";
@@ -9,29 +10,25 @@ export class StateSync {
     private others: Map<string, RemoteAvatar>
   ) {}
 
-  // Rekonsyliacja własnej pozycji
-  public applySelfSnapshot(
-    sp: ServerPlayer,
-    pendingInputs: InputSample[],
-    inputToVec: (i: InputSample) => { x: number; y: number },
-    world: { w: number; h: number }
-  ) {
+  public applySelfSnapshot(sp: ServerPlayer, pendingInputs: InputSample[]) {
     this.me.setFromAuthoritative(sp.x, sp.y);
-    // odrzucamy przetworzone
+
+    // 2) zostaw tylko inputy, których serwer jeszcze nie przetworzył
     const remaining = pendingInputs.filter((i) => i.seq > sp.lastProcessedSeq);
-    // odtwarzamy jeszcze nieprzetworzone
+
     for (const i of remaining) {
-      const v = inputToVec(i);
-      this.me.predictMove(v.x, v.y, i.dt, world);
+      this.me.predictMove(i);
     }
-    return remaining; // zwraca zaktualizowaną listę pendingInputs
+
+    return remaining;
   }
 
-  // Inni gracze – tworzenie i interpolacja
+  // Inni gracze – interpolacja
   public applyRemoteSnapshot(players: ServerPlayer[]) {
     for (const sp of players) {
-      if (this.others.has(sp.id)) {
-        this.others.get(sp.id)!.lerpTo(sp.x, sp.y);
+      const other = this.others.get(sp.id);
+      if (other) {
+        other.lerpTo(sp.x, sp.y);
       }
     }
   }

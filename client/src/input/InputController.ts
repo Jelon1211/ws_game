@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import type { InputMsg, InputSample } from "../types/input";
+import { LAST_MSG_SENT } from "../config";
 
 export class InputController {
   private scene: Phaser.Scene;
@@ -37,7 +38,7 @@ export class InputController {
       this.lastInput?.left !== input.left ||
       this.lastInput?.right !== input.right;
 
-    if (changed || now - this.lastSent >= import.meta.env.VITE_LAST_MSG_SENT) {
+    if (changed || now - this.lastSent >= LAST_MSG_SENT) {
       // ~20 Hz
       const msg: InputMsg = { ...input, seq: ++this.seq };
       const dt = (now - this.lastSent) / 1000 || 0.05;

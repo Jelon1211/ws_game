@@ -6,6 +6,7 @@ import type { WorldSize } from "../types/world";
 import type { ServerHello, ServerPlayer, ServerState } from "../types/server";
 import { LocalAvatar } from "../entities/LocalAvatar";
 import { RemoteAvatar } from "../entities/RemoteAvatar";
+import { WORLD } from "../config";
 
 export class NetScene extends Phaser.Scene {
   private net = new NetworkClient();
@@ -15,26 +16,22 @@ export class NetScene extends Phaser.Scene {
   private sync!: StateSync;
 
   private world: WorldSize = {
-    w: import.meta.env.VITE_SCENE_WIDTH,
-    h: import.meta.env.VITE_SCENE_HEIGHT,
+    w: WORLD.w,
+    h: WORLD.h,
   };
 
   create() {
-    // 1) sieć
     this.net.connect(
       import.meta.env.VITE_SERVER_URL,
       this.onHello,
       this.onState
     );
 
-    // 2) lokalny avatar (tymczasowo w 300,300 zanim dostaniemy hello/world)
     this.me = new LocalAvatar(this, "local-temp", 300, 300);
     this.cameras.main.startFollow(this.me as any, true, 0.15, 0.15);
 
-    // 3) wejście
     this.inputs.init();
 
-    // 4) synchronizacja
     this.sync = new StateSync(this.me, this.others);
   }
 
@@ -51,9 +48,7 @@ export class NetScene extends Phaser.Scene {
         // rekonsyliacja
         this.inputs.pending = this.sync.applySelfSnapshot(
           sp,
-          this.inputs.pending,
-          this.inputVector,
-          this.world
+          this.inputs.pending
         );
       } else {
         // ensure remote avatars
@@ -77,32 +72,11 @@ export class NetScene extends Phaser.Scene {
     this.sync.applyRemoteSnapshot(remotes);
   };
 
-  update(_time: number, deltaMs: number) {
-    const dt = deltaMs / 1000;
-
-    // 1) wejście → sieć (throttle)
+  update(_time: number) {
     this.inputs.maybeSend((msg) => this.net.sendInput(msg));
 
-    // 2) predykcja lokalna
-    const v = this.inputVector(this.inputs.readCurrent());
-    this.me.predictMove(v.x, v.y, dt, this.world);
+    this.me.predictMove(this.inputs.readCurrent());
   }
-
-  private inputVector = (i: {
-    up?: boolean;
-    down?: boolean;
-    left?: boolean;
-    right?: boolean;
-  }) => {
-    let x = 0,
-      y = 0;
-    if (i.left) x -= 1;
-    if (i.right) x += 1;
-    if (i.up) y -= 1;
-    if (i.down) y += 1;
-    const len = Math.hypot(x, y) || 1;
-    return { x: x / len, y: y / len };
-  };
 
   shutdown() {
     this.net.destroy();

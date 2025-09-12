@@ -21,7 +21,7 @@ import {HttpExceptionHandlerService} from "./api-server/exception-handling/http-
 import {AppSentry} from "./loggers/sentry/sentry";
 import {StrictRequestMiddleware} from "./api-server/auth/strict.request.middleware";
 import {RequestLoggerMiddleware} from "./api-server/logging/request-logger.middleware";
-import {SocketServer} from "./socker-server/SockerServer";
+import {GameServer} from "./socker-server/core/GameServer";
 
 assignProcessEnvs(__dirname);
 
@@ -47,7 +47,7 @@ class Server {
     new HttpExceptionHandlerService(this.app);
 
   private httpServer!: HttpServer;
-  private socketServer!: SocketServer;
+  private socketServer!: GameServer;
 
   public async start(): Promise<void> {
     try {
@@ -95,7 +95,7 @@ class Server {
 
       this.httpServer = createServer(this.app);
 
-      this.socketServer = new SocketServer(this.httpServer);
+      this.socketServer = new GameServer(this.httpServer);
       this.socketServer.init();
 
       this.httpServer.listen(
