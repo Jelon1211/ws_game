@@ -8,6 +8,12 @@ new Phaser.Game({
   height: WORLD.h,
   parent: "app",
   backgroundColor: "#0b1020",
+  physics: {
+    default: "arcade",
+    arcade: {
+      debug: true,
+    },
+  },
   scene: [NetScene],
   render: { pixelArt: true },
 });

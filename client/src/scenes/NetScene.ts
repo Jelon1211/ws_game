@@ -16,13 +16,20 @@ export class NetScene extends Phaser.Scene {
   private me!: LocalAvatar;
   private others = new Map<string, RemoteAvatar>();
   private sync!: StateSync;
+  private platforms!: Phaser.Physics.Arcade.StaticGroup;
 
   private world: WorldSize = {
     w: WORLD.w,
     h: WORLD.h,
   };
 
+  preload() {
+    this.load.json("map01", "../../public/maps/01.json");
+  }
+
   create() {
+    this.createPlatformsFromMap("map01");
+
     this.net.connect(
       import.meta.env.VITE_SERVER_URL,
       this.onHello,
@@ -35,6 +42,20 @@ export class NetScene extends Phaser.Scene {
     this.inputs.init();
 
     this.sync = new StateSync(this.me, this.others);
+  }
+
+  update(_time: number) {
+    this.inputs.maybeSend((msg) => this.net.sendInput(msg));
+    this.me.predictMove(this.inputs.readCurrent());
+  }
+
+  shutdown() {
+    this.net.destroy();
+    this.me?.destroy();
+    for (const r of this.others.values()) {
+      r.destroy();
+    }
+    this.others.clear();
   }
 
   private onHello = (data: ServerHello) => {
@@ -53,14 +74,12 @@ export class NetScene extends Phaser.Scene {
           this.inputs.pending
         );
       } else {
-        // ensure remote avatars
         if (!this.others.has(sp.id)) {
           this.others.set(sp.id, new RemoteAvatar(this, sp.id, sp.x, sp.y));
         }
       }
     }
 
-    // usuń duchy
     const liveIds = new Set(state.players.map((p) => p.id));
     for (const id of Array.from(this.others.keys())) {
       if (!liveIds.has(id)) {
@@ -69,23 +88,24 @@ export class NetScene extends Phaser.Scene {
       }
     }
 
-    // interpolacja dla reszty
     const remotes: ServerPlayer[] = state.players.filter((p) => p.id !== myId);
     this.sync.applyRemoteSnapshot(remotes);
   };
 
-  update(_time: number) {
-    this.inputs.maybeSend((msg) => this.net.sendInput(msg));
+  private createPlatformsFromMap(mapKey: string) {
+    const mapData = this.cache.json.get(mapKey) as {
+      platforms: { x: number; y: number; w: number; h: number }[];
+    };
 
-    this.me.predictMove(this.inputs.readCurrent());
-  }
+    this.platforms = this.physics.add.staticGroup();
 
-  shutdown() {
-    this.net.destroy();
-    this.me?.destroy();
-    for (const r of this.others.values()) {
-      r.destroy();
-    }
-    this.others.clear();
+    mapData.platforms.forEach((p) => {
+      const platform = this.add.rectangle(p.x, p.y, p.w, p.h, 0x8888ff);
+
+      // phisics to test
+      this.physics.add.existing(platform, true);
+
+      this.platforms.add(platform);
+    });
   }
 }

@@ -2,11 +2,13 @@ import {Engine, World, Composite} from "matter-js";
 import {Player} from "../models/Player";
 import {GRAVITY, TICK_RATE} from "../constants";
 import {CollisionManager} from "../physics/CollisionManager";
+import {WorldBuilder} from "./WorldBuilder";
 
 export class GameWorld {
   public engine: Engine;
   private players: Map<string, Player> = new Map();
   private collisionManager: CollisionManager;
+  private worldBuilder: WorldBuilder;
 
   constructor() {
     this.engine = Engine.create({
@@ -16,6 +18,7 @@ export class GameWorld {
       },
     });
 
+    this.worldBuilder = new WorldBuilder(this.engine);
     this.collisionManager = new CollisionManager(this.engine, () =>
       this.players.values()
     );

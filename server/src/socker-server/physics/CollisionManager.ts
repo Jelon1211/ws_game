@@ -1,5 +1,4 @@
-import {Engine, World, Bodies, Events, Body} from "matter-js";
-import {WORLD} from "../constants";
+import {Engine, Events, Body} from "matter-js";
 import {Player} from "../models/Player";
 
 export class CollisionManager {
@@ -7,36 +6,7 @@ export class CollisionManager {
     private engine: Engine,
     private getPlayers: () => Iterable<Player>
   ) {
-    this.addWalls();
     this.registerCollisionEvents();
-  }
-
-  private addWalls() {
-    const thickness = 30; // grubość ścian
-    const w = WORLD.w;
-    const h = WORLD.h;
-
-    const ground = Bodies.rectangle(w / 2, h + thickness / 2, w, thickness, {
-      isStatic: true,
-      label: "ground",
-    });
-
-    const ceiling = Bodies.rectangle(w / 2, -thickness / 2, w, thickness, {
-      isStatic: true,
-      label: "ceiling",
-    });
-
-    const leftWall = Bodies.rectangle(-thickness / 2, h / 2, thickness, h, {
-      isStatic: true,
-      label: "leftWall",
-    });
-
-    const rightWall = Bodies.rectangle(w + thickness / 2, h / 2, thickness, h, {
-      isStatic: true,
-      label: "rightWall",
-    });
-
-    World.add(this.engine.world, [ground, ceiling, leftWall, rightWall]);
   }
 
   private registerCollisionEvents() {
