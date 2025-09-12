@@ -1,5 +1,7 @@
 import { Engine, World, Bodies, Body } from "matter-js";
-import { SPEED } from "../config";
+import { SPEED, WORLD } from "../config";
+
+// TODO: move game wolrd to different space - this is should be only phisics
 
 export class LocalPhysics {
   private engine: Engine;
@@ -14,19 +16,13 @@ export class LocalPhysics {
       },
     });
 
+    // This is not phisics
     this.body = Bodies.rectangle(startX, startY, 40, 40, {
       inertia: Infinity,
       label: "local",
     });
 
     World.add(this.engine.world, this.body);
-
-    // opcjonalnie: lokalny ground
-    const ground = Bodies.rectangle(450, 600, 900, 40, {
-      isStatic: true,
-      label: "ground",
-    });
-    World.add(this.engine.world, ground);
   }
 
   public step(input: { up?: boolean; left?: boolean; right?: boolean }) {
@@ -37,6 +33,27 @@ export class LocalPhysics {
     Body.setVelocity(this.body, { x: vx, y: this.body.velocity.y });
 
     Engine.update(this.engine, 1000 / 60);
+
+    const halfW = 20; // half the player TODO: do it better
+    const halfH = 20; // half the player TODO: do it better
+
+    let x = this.body.position.x;
+    let y = this.body.position.y;
+
+    if (x < halfW) {
+      x = halfW;
+    }
+    if (x > WORLD.w - halfW) {
+      x = WORLD.w - halfW;
+    }
+    if (y < halfH) {
+      y = halfH;
+    }
+    if (y > WORLD.h - halfH) {
+      y = WORLD.h - halfH;
+    }
+
+    Body.setPosition(this.body, { x, y });
   }
 
   public get position() {
