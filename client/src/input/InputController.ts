@@ -29,6 +29,7 @@ export class InputController {
     };
   }
 
+  // TODO: check this after moving to 60hz
   public maybeSend(sender: (msg: InputMsg) => void) {
     const now = this.scene.time.now;
     const input = this.readCurrent();
@@ -39,7 +40,6 @@ export class InputController {
       this.lastInput?.right !== input.right;
 
     if (changed || now - this.lastSent >= LAST_MSG_SENT) {
-      // ~20 Hz
       const msg: InputMsg = { ...input, seq: ++this.seq };
       const dt = (now - this.lastSent) / 1000 || 0.05;
       this.pending.push({ ...msg, dt });

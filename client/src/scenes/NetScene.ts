@@ -8,6 +8,8 @@ import { LocalAvatar } from "../entities/LocalAvatar";
 import { RemoteAvatar } from "../entities/RemoteAvatar";
 import { WORLD } from "../config";
 
+// TODO: this is not scene, move to some ws space
+
 export class NetScene extends Phaser.Scene {
   private net = new NetworkClient();
   private inputs = new InputController(this);

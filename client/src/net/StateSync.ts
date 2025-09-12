@@ -13,7 +13,6 @@ export class StateSync {
   public applySelfSnapshot(sp: ServerPlayer, pendingInputs: InputSample[]) {
     this.me.setFromAuthoritative(sp.x, sp.y);
 
-    // 2) zostaw tylko inputy, których serwer jeszcze nie przetworzył
     const remaining = pendingInputs.filter((i) => i.seq > sp.lastProcessedSeq);
 
     for (const i of remaining) {
@@ -23,7 +22,6 @@ export class StateSync {
     return remaining;
   }
 
-  // Inni gracze – interpolacja
   public applyRemoteSnapshot(players: ServerPlayer[]) {
     for (const sp of players) {
       const other = this.others.get(sp.id);
