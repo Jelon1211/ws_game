@@ -7,7 +7,7 @@ export class LocalPhysics {
   private engine: Engine;
   private body: Body;
 
-  constructor(startX: number, startY: number) {
+  constructor(scene: Phaser.Scene, startX: number, startY: number) {
     this.engine = Engine.create({
       gravity: {
         x: 0,
@@ -21,17 +21,40 @@ export class LocalPhysics {
       inertia: Infinity,
       label: "local",
     });
-
     World.add(this.engine.world, this.body);
+
+    const mapData = scene.cache.json.get("map01");
+    for (const platform of mapData.platforms) {
+      const platformBody = Bodies.rectangle(
+        platform.x,
+        platform.y,
+        platform.w,
+        platform.h,
+        {
+          isStatic: true,
+        }
+      );
+      World.add(this.engine.world, platformBody);
+    }
   }
 
   public step(input: { up?: boolean; left?: boolean; right?: boolean }) {
     let vx = 0;
-    if (input.left) vx -= SPEED;
-    if (input.right) vx += SPEED;
 
-    Body.setVelocity(this.body, { x: vx, y: this.body.velocity.y });
+    // TODO: move to player input class and do it in switch cases
+    if (input.left) {
+      vx -= SPEED;
+    }
+    if (input.right) {
+      vx += SPEED;
+    }
 
+    Body.setVelocity(this.body, {
+      x: vx,
+      y: this.body.velocity.y,
+    });
+
+    // 60fps
     Engine.update(this.engine, 1000 / 60);
 
     const halfW = 20; // half the player TODO: do it better

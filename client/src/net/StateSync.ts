@@ -1,4 +1,3 @@
-// src/net/StateSync.ts
 import type { LocalAvatar } from "../entities/LocalAvatar";
 import type { RemoteAvatar } from "../entities/RemoteAvatar";
 import type { InputSample } from "../types/input";

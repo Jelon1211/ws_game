@@ -6,8 +6,8 @@ export class LocalAvatar extends Avatar {
   private physics: LocalPhysics;
 
   constructor(scene: Phaser.Scene, id: string, x: number, y: number) {
-    super(scene, id, x, y, 0x3366ff, 12);
-    this.physics = new LocalPhysics(x, y);
+    super(scene, id, x, y, 0x3366ff, 15);
+    this.physics = new LocalPhysics(scene, x, y);
   }
 
   public predictMove(input: { up?: boolean; left?: boolean; right?: boolean }) {
