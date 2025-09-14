@@ -9,6 +9,8 @@ type MapJson = {
 };
 
 export class WorldBuilder {
+  public static worldMap: MapJson;
+
   constructor(private engine: Engine) {
     this.init();
   }
@@ -16,6 +18,7 @@ export class WorldBuilder {
   public init() {
     const mapPath = path.resolve(__dirname, "../../data-sources/maps/01.json");
     const mapJson = JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+    WorldBuilder.worldMap = mapJson;
     this.loadFromJson(mapJson);
   }
 

@@ -5,6 +5,7 @@ import {InputMsg} from "../models/InputMsg";
 import {Bodies} from "matter-js";
 import {SNAPSHOT_RATE, TICK_RATE, WORLD} from "../constants";
 import {PlayerController} from "../mechanics/PlayerController";
+import {WorldBuilder} from "./WorldBuilder";
 
 export class GameLoop {
   private io: IOServer;
@@ -35,7 +36,11 @@ export class GameLoop {
     const player = new Player(socket.id, body);
 
     this.world.addPlayer(player);
-    socket.emit("hello", {id: socket.id, world: WORLD});
+    socket.emit("hello", {
+      id: socket.id,
+      world: WORLD,
+      map: WorldBuilder.worldMap,
+    });
 
     console.log("join", socket.id);
   }
