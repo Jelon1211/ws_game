@@ -1,47 +1,27 @@
 import { Engine, World, Bodies, Body } from "matter-js";
 import { SPEED, WORLD } from "../config";
+import { PhysicsEngine } from "./PhysicsEngine";
 
 // TODO: move game wolrd to different space - this is should be only phisics
 
 export class LocalPhysics {
+  private physicsEnginge: PhysicsEngine = PhysicsEngine.getInstance();
   private engine: Engine;
   private body: Body;
 
   constructor(scene: Phaser.Scene, startX: number, startY: number) {
-    this.engine = Engine.create({
-      gravity: {
-        x: 0,
-        // y: GRAVITY / 1000 - DISABLED CLIENT GRAVITY
-        y: 0,
-      },
-    });
+    this.engine = this.physicsEnginge.getEngine();
 
-    // This is not phisics
     this.body = Bodies.rectangle(startX, startY, 40, 40, {
       inertia: Infinity,
-      label: "local",
+      label: "localAvatar",
     });
-    World.add(this.engine.world, this.body);
-
-    const mapData = scene.cache.json.get("map01");
-    for (const platform of mapData.platforms) {
-      const platformBody = Bodies.rectangle(
-        platform.x,
-        platform.y,
-        platform.w,
-        platform.h,
-        {
-          isStatic: true,
-        }
-      );
-      World.add(this.engine.world, platformBody);
-    }
+    World.add(this.physicsEnginge.getWorld(), this.body);
   }
 
   public step(input: { up?: boolean; left?: boolean; right?: boolean }) {
     let vx = 0;
 
-    // TODO: move to player input class and do it in switch cases
     if (input.left) {
       vx -= SPEED;
     }

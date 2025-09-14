@@ -7,6 +7,7 @@ import type { ServerHello, ServerPlayer, ServerState } from "../types/server";
 import { LocalAvatar } from "../entities/LocalAvatar";
 import { RemoteAvatar } from "../entities/RemoteAvatar";
 import { WORLD } from "../config";
+import { MapRenderer } from "../render/MapRenderer";
 
 // TODO: this is not scene, move to some ws space
 
@@ -16,7 +17,7 @@ export class NetScene extends Phaser.Scene {
   private me!: LocalAvatar;
   private others = new Map<string, RemoteAvatar>();
   private sync!: StateSync;
-  private platforms!: Phaser.Physics.Arcade.StaticGroup;
+  private mapRenderer!: MapRenderer;
 
   private world: WorldSize = {
     w: WORLD.w,
@@ -28,8 +29,6 @@ export class NetScene extends Phaser.Scene {
   }
 
   create() {
-    this.createPlatformsFromMap("map01");
-
     this.net.connect(
       import.meta.env.VITE_SERVER_URL,
       this.onHello,
@@ -42,6 +41,11 @@ export class NetScene extends Phaser.Scene {
     this.inputs.init();
 
     this.sync = new StateSync(this.me, this.others);
+
+    // region render map
+    this.mapRenderer = new MapRenderer(this);
+    this.mapRenderer.render(this.cache.json.get("map01"));
+    // endregion
   }
 
   update(_time: number) {
@@ -91,21 +95,4 @@ export class NetScene extends Phaser.Scene {
     const remotes: ServerPlayer[] = state.players.filter((p) => p.id !== myId);
     this.sync.applyRemoteSnapshot(remotes);
   };
-
-  private createPlatformsFromMap(mapKey: string) {
-    const mapData = this.cache.json.get(mapKey) as {
-      platforms: { x: number; y: number; w: number; h: number }[];
-    };
-
-    this.platforms = this.physics.add.staticGroup();
-
-    mapData.platforms.forEach((p) => {
-      const platform = this.add.rectangle(p.x, p.y, p.w, p.h, 0x8888ff);
-
-      // phisics to test
-      this.physics.add.existing(platform, true);
-
-      this.platforms.add(platform);
-    });
-  }
 }

@@ -1,4 +1,3 @@
-// src/entities/LocalAvatar.ts
 import { Avatar } from "./Avatar";
 import { LocalPhysics } from "../physics/LocalPhysics";
 
