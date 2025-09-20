@@ -5,7 +5,7 @@ export class RemoteAvatar extends Avatar {
   private activeTween?: Phaser.Tweens.Tween;
 
   constructor(scene: Phaser.Scene, id: string, x: number, y: number) {
-    super(scene, id, x, y, 0x999999, 10);
+    super(scene, id, x, y);
   }
 
   public lerpTo(x: number, y: number, durationMs = LERP_DURATION) {

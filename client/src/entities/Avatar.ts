@@ -1,37 +1,28 @@
-import Phaser from "phaser";
-
 export abstract class Avatar {
   readonly id: string;
-  protected circle: Phaser.GameObjects.Arc;
+  protected sprite: Phaser.GameObjects.Sprite;
   protected scene: Phaser.Scene;
 
   public get x() {
-    return this.circle.x;
+    return this.sprite.x;
   }
   public get y() {
-    return this.circle.y;
+    return this.sprite.y;
   }
   public set x(v: number) {
-    this.circle.x = v;
+    this.sprite.x = v;
   }
   public set y(v: number) {
-    this.circle.y = v;
+    this.sprite.y = v;
   }
 
-  constructor(
-    scene: Phaser.Scene,
-    id: string,
-    x: number,
-    y: number,
-    color: number,
-    radius = 12
-  ) {
+  constructor(scene: Phaser.Scene, id: string, x: number, y: number) {
     this.scene = scene;
     this.id = id;
-    this.circle = scene.add.circle(x, y, radius, color);
+    this.sprite = scene.add.sprite(x, y, "chicken");
   }
 
   destroy() {
-    this.circle.destroy();
+    this.sprite.destroy();
   }
 }

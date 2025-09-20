@@ -23,6 +23,13 @@ export class NetScene extends Phaser.Scene {
     h: WORLD.h,
   };
 
+  preload() {
+    this.load.spritesheet("chicken", "assets/Chicken_Sprite_Sheet.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+  }
+
   create() {
     this.net = networkClient;
     networkClient.init();
@@ -35,6 +42,24 @@ export class NetScene extends Phaser.Scene {
     this.sync = new StateSync(this.me, this.others);
 
     registerHandlers(this);
+
+    this.anims.create({
+      key: "walk",
+      frames: this.anims.generateFrameNumbers("chicken", { start: 0, end: 3 }),
+      frameRate: 6,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: "up",
+      frames: this.anims.generateFrameNumbers("chicken", {
+        first: 6,
+        start: 10,
+        end: 12,
+      }),
+      frameRate: 8,
+      repeat: 0,
+    });
   }
 
   update(_time: number) {

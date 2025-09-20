@@ -9,7 +9,7 @@ export class LocalPhysics {
   private engine: Engine;
   private body: Body;
 
-  constructor(scene: Phaser.Scene, startX: number, startY: number) {
+  constructor(_scene: Phaser.Scene, startX: number, startY: number) {
     this.engine = this.physicsEnginge.getEngine();
 
     this.body = Bodies.rectangle(startX, startY, 40, 40, {

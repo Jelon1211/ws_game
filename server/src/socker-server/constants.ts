@@ -6,4 +6,4 @@ export const SPEED = 9;
 export const GRAVITY = 800;
 export const JUMP_SPEED = -8;
 export const WORLD = {w: 900, h: 600};
-export const COYOTE_TIME = 120;
+export const COYOTE_TIME = 150;
