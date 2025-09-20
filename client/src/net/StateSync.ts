@@ -25,7 +25,7 @@ export class StateSync {
     for (const sp of players) {
       const other = this.others.get(sp.id);
       if (other) {
-        other.lerpTo(sp.x, sp.y);
+        other.applySnapshot(sp.x, sp.y);
       }
     }
   }

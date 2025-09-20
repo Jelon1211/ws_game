@@ -4,7 +4,7 @@ import { LocalPhysics } from "../physics/LocalPhysics";
 export class LocalAvatar extends Avatar {
   private physics: LocalPhysics;
   constructor(scene: Phaser.Scene, id: string, x: number, y: number) {
-    super(scene, id, x, y);
+    super(scene, id, x, y, "chicken");
     this.physics = new LocalPhysics(scene, x, y);
   }
 
@@ -22,24 +22,19 @@ export class LocalAvatar extends Avatar {
     switch (true) {
       case input.left:
         this.sprite.setFlipX(false);
-        this.sprite.play("walk", true);
+        this.sprite.play("walk_local", true);
         break;
 
       case input.right:
         this.sprite.setFlipX(true);
-        this.sprite.play("walk", true);
+        this.sprite.play("walk_local", true);
         break;
 
       case input.up:
         if (!this.sprite.anims.isPlaying) {
           this.sprite.setFlipX(false);
-          this.sprite.play("up");
+          this.sprite.play("up_local");
         }
-        break;
-
-      case input.down:
-        this.sprite.setFlipX(false);
-        this.sprite.play("down", true);
         break;
 
       default:

@@ -16,10 +16,16 @@ export abstract class Avatar {
     this.sprite.y = v;
   }
 
-  constructor(scene: Phaser.Scene, id: string, x: number, y: number) {
+  constructor(
+    scene: Phaser.Scene,
+    id: string,
+    x: number,
+    y: number,
+    spritesheet: string
+  ) {
     this.scene = scene;
     this.id = id;
-    this.sprite = scene.add.sprite(x, y, "chicken");
+    this.sprite = scene.add.sprite(x, y, spritesheet);
   }
 
   destroy() {

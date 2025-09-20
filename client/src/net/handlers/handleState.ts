@@ -1,20 +1,26 @@
 import type { ServerState } from "../../types/server";
 import type { NetScene } from "../../scenes/NetScene";
+import { RemoteAvatar } from "../../entities/RemoteAvatar";
 
 export function handleState(scene: NetScene, state: ServerState) {
   const myId = scene.net.myId!;
 
-  for (const sp of state.players) {
-    if (sp.id === myId) {
+  for (const state_player of state.players) {
+    if (state_player.id === myId) {
       scene.inputs.pending = scene.sync.applySelfSnapshot(
-        sp,
+        state_player,
         scene.inputs.pending
       );
     } else {
-      if (!scene.others.has(sp.id)) {
+      if (!scene.others.has(state_player.id)) {
         scene.others.set(
-          sp.id,
-          new scene.constructor.prototype.RemoteAvatar(scene, sp.id, sp.x, sp.y)
+          state_player.id,
+          new RemoteAvatar(
+            scene,
+            state_player.id,
+            state_player.x,
+            state_player.y
+          )
         );
       }
     }
