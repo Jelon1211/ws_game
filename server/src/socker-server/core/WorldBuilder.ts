@@ -3,13 +3,8 @@ import {WORLD} from "../constants";
 import * as fs from "fs";
 import * as path from "path";
 
-// TODO: move to types
-type MapJson = {
-  platforms: {x: number; y: number; w: number; h: number}[];
-};
-
 export class WorldBuilder {
-  public static worldMap: MapJson;
+  public static worldMap: any; // add proper types (tiled map editor)
 
   constructor(private engine: Engine) {
     this.init();
@@ -22,14 +17,24 @@ export class WorldBuilder {
     this.loadFromJson(mapJson);
   }
 
-  private loadFromJson(map: MapJson) {
+  private loadFromJson(tiledMap: any) {
     const bodies = [];
 
     bodies.push(...this.createWalls());
 
-    for (const p of map.platforms) {
+    const platformsLayer = tiledMap.layers.find(
+      (l: any) => l.type === "objectgroup" && l.name === "Platforms"
+    );
+    if (!platformsLayer) {
+      throw new Error("No platforms in map!");
+    }
+
+    for (const obj of platformsLayer.objects) {
+      const x = obj.x + obj.width / 2;
+      const y = obj.y - obj.height / 2;
+
       bodies.push(
-        Bodies.rectangle(p.x, p.y, p.w, p.h, {
+        Bodies.rectangle(x, y, obj.width, obj.height, {
           isStatic: true,
           label: "platform",
         })

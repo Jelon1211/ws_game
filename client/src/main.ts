@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { NetScene } from "./scenes/NetScene";
 import { WORLD } from "./config";
+import "./style.css";
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -16,4 +17,7 @@ new Phaser.Game({
   },
   scene: [NetScene],
   render: { pixelArt: true },
+  scale: {
+    mode: Phaser.Scale.FIT, // dopasuje grę do okna
+  },
 });

@@ -4,7 +4,7 @@ import type { IMap } from "../types/map";
 
 export class MapRenderer {
   private physicsEngine: PhysicsEngine = PhysicsEngine.getInstance();
-  private mapData: IMap | null = null;
+  private mapData: any | null = null; //TODO: add proper type
   private platforms!: Phaser.Physics.Arcade.StaticGroup;
   private platformBodies: Body[] = [];
   private platformGraphics: Phaser.GameObjects.Rectangle[] = [];
@@ -22,14 +22,24 @@ export class MapRenderer {
   private initMapPhysics() {
     if (!this.mapData) return;
 
-    for (const platform of this.mapData.platforms) {
-      const platformBody = Bodies.rectangle(
-        platform.x,
-        platform.y,
-        platform.w,
-        platform.h,
-        { isStatic: true, label: "platform" }
-      );
+    const platformsLayer = this.mapData.layers.find(
+      (l: any) => l.type === "objectgroup" && l.name === "Platforms"
+    );
+    if (!platformsLayer) {
+      console.warn("Brak warstwy Platforms w mapie!");
+      return;
+    }
+
+    for (const obj of platformsLayer.objects) {
+      // Tiled: x,y = lewy górny róg; Matter.js: x,y = środek
+      const x = obj.x + obj.width / 2;
+      const y = obj.y - obj.height / 2;
+
+      const platformBody = Bodies.rectangle(x, y, obj.width, obj.height, {
+        isStatic: true,
+        label: "platform",
+      });
+
       this.platformBodies.push(platformBody);
       World.add(this.physicsEngine.getWorld(), platformBody);
     }
@@ -40,14 +50,27 @@ export class MapRenderer {
 
     this.platforms = this.scene.physics.add.staticGroup();
 
-    for (const platform of this.mapData.platforms) {
+    // znajdź warstwę "Platforms" w JSON-ie Tiled
+    const platformsLayer = this.mapData.layers.find(
+      (l: any) => l.type === "objectgroup" && l.name === "Platforms"
+    );
+    if (!platformsLayer) {
+      console.warn("Brak warstwy Platforms w mapie!");
+      return;
+    }
+
+    for (const obj of platformsLayer.objects) {
+      // Uwaga: Tiled podaje x,y = lewy górny róg, a Phaser (tak jak Matter) liczy od środka
+      const x = obj.x + obj.width / 2;
+      const y = obj.y - obj.height / 2;
+
       const rect = this.scene.add.rectangle(
-        platform.x,
-        platform.y,
-        platform.w,
-        platform.h,
+        x,
+        y,
+        obj.width,
+        obj.height,
         0x8868ff
-      ) as Phaser.GameObjects.Rectangle;
+      );
 
       this.scene.physics.add.existing(rect, true);
       this.platforms.add(rect);
