@@ -26,21 +26,33 @@ export class NetScene extends Phaser.Scene {
 
   preload() {
     // TODO: move this to different space
-    this.load.spritesheet("chicken", "assets/Chicken_Sprite_Sheet.png", {
-      frameWidth: 32,
-      frameHeight: 32,
-    });
     this.load.spritesheet(
-      "chickenRemote",
-      "assets/Chicken_Sprite_Sheet_Black.png",
+      "chicken",
+      "assets/avatars/Chicken_Sprite_Sheet.png",
       {
         frameWidth: 32,
         frameHeight: 32,
       }
     );
+    this.load.spritesheet(
+      "chickenRemote",
+      "assets/avatars/Chicken_Sprite_Sheet_Black.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      }
+    );
+
+    this.load.image("background", "assets/bg/Summer7.png");
+    this.load.image("night_tiles", "assets/tiles/night_tiles.png");
   }
 
   create() {
+    const bg = this.add.image(0, 0, "background").setOrigin(0, 0);
+    bg.displayWidth = this.scale.width;
+    bg.displayHeight = this.scale.height;
+    bg.setAlpha(0.7);
+
     this.net = networkClient;
     networkClient.init();
 

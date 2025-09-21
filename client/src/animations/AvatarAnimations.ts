@@ -5,8 +5,11 @@ export class AvatarAnimations {
   public static register(scene: Phaser.Scene) {
     scene.anims.create({
       key: "walk_local",
-      frames: scene.anims.generateFrameNumbers("chicken", { start: 0, end: 3 }),
-      frameRate: 6,
+      frames: scene.anims.generateFrameNumbers("chicken", {
+        start: 12,
+        end: 15,
+      }),
+      frameRate: 10,
       repeat: -1,
     });
 
@@ -23,10 +26,10 @@ export class AvatarAnimations {
     scene.anims.create({
       key: "walk_remote",
       frames: scene.anims.generateFrameNumbers("chickenRemote", {
-        start: 0,
-        end: 3,
+        start: 12,
+        end: 15,
       }),
-      frameRate: 6,
+      frameRate: 10,
       repeat: -1,
     });
 

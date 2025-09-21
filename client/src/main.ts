@@ -8,7 +8,7 @@ new Phaser.Game({
   width: WORLD.w,
   height: WORLD.h,
   parent: "app",
-  backgroundColor: "#0b1020",
+  backgroundColor: "#fff",
   physics: {
     default: "arcade",
     arcade: {
@@ -18,6 +18,6 @@ new Phaser.Game({
   scene: [NetScene],
   render: { pixelArt: true },
   scale: {
-    mode: Phaser.Scale.FIT, // dopasuje grę do okna
+    mode: Phaser.Scale.FIT,
   },
 });

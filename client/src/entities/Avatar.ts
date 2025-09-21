@@ -26,6 +26,9 @@ export abstract class Avatar {
     this.scene = scene;
     this.id = id;
     this.sprite = scene.add.sprite(x, y, spritesheet);
+    this.sprite.setScale(1.6);
+    // TODO: move this to remoteAvatar
+    this.sprite.setTint(0xff0000, 0x00ff00, 0x0000ff, 0xffff00);
   }
 
   destroy() {

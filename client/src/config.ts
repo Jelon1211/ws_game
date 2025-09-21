@@ -10,3 +10,5 @@ export const LERP_DURATION = import.meta.env.VITE_LERP_DURATION;
 
 // Network
 export const LAST_MSG_SENT = import.meta.env.VITE_LAST_MSG_SENT;
+
+export const DEBUG_MODE = import.meta.env.VITE_CLIENT_DEBUG === "true";

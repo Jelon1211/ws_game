@@ -6,7 +6,7 @@ export type ServerHello = {
     w: number;
     h: number;
   };
-  map: IMap;
+  map: any; // TODO: add proper types
 };
 
 export type ServerPlayer = {

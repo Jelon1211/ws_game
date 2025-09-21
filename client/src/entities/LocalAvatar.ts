@@ -6,7 +6,7 @@ import { WORLD } from "../config";
 export class LocalAvatar extends Avatar {
   private physics: LocalPhysics;
   private targetY: number;
-  private readonly lerpY = 0.2; // możesz 0.15–0.3 dostroić
+  private readonly lerpY = 0.2;
 
   constructor(scene: Phaser.Scene, id: string, x: number, y: number) {
     super(scene, id, x, y, "chicken");
