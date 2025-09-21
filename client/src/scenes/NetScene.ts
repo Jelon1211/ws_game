@@ -94,6 +94,10 @@ export class NetScene extends Phaser.Scene {
       this.inputs.maybeSend((msg) => this.net.sendInput(msg));
       this.me.predictMove(this.inputs.readCurrent());
     }
+
+    for (const remote of this.others.values()) {
+      remote.update();
+    }
   }
 
   shutdown() {
