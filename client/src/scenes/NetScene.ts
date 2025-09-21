@@ -25,6 +25,7 @@ export class NetScene extends Phaser.Scene {
   };
 
   preload() {
+    // TODO: move this to different space
     this.load.spritesheet("chicken", "assets/Chicken_Sprite_Sheet.png", {
       frameWidth: 32,
       frameHeight: 32,

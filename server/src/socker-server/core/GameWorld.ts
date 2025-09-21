@@ -1,6 +1,6 @@
 import {Engine, World, Composite} from "matter-js";
 import {Player} from "../models/Player";
-import {GRAVITY, TICK_RATE} from "../constants";
+import {TICK_RATE} from "../constants";
 import {CollisionManager} from "../physics/CollisionManager";
 import {WorldBuilder} from "./WorldBuilder";
 
@@ -14,7 +14,7 @@ export class GameWorld {
     this.engine = Engine.create({
       gravity: {
         x: 0,
-        y: GRAVITY / 1000,
+        y: 1,
       },
     });
 

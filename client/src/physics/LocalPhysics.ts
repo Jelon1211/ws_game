@@ -1,8 +1,7 @@
+// LocalPhysics.ts (KLIENT)
 import { Engine, World, Bodies, Body } from "matter-js";
 import { SPEED, WORLD } from "../config";
 import { PhysicsEngine } from "./PhysicsEngine";
-
-// TODO: move game wolrd to different space - this is should be only phisics
 
 export class LocalPhysics {
   private physicsEnginge: PhysicsEngine = PhysicsEngine.getInstance();
@@ -20,50 +19,36 @@ export class LocalPhysics {
   }
 
   public step(input: { up?: boolean; left?: boolean; right?: boolean }) {
+    // --- X jak dotychczas ---
     let vx = 0;
+    if (input.left) vx -= SPEED;
+    if (input.right) vx += SPEED;
 
-    if (input.left) {
-      vx -= SPEED;
-    }
-    if (input.right) {
-      vx += SPEED;
-    }
+    Body.setVelocity(this.body, { x: vx, y: this.body.velocity.y });
 
-    Body.setVelocity(this.body, {
-      x: vx,
-      y: this.body.velocity.y,
-    });
-
-    // 60fps
+    // stały krok (jak serwer)
     Engine.update(this.engine, 1000 / 60);
 
-    const halfW = 20; // half the player TODO: do it better
-    const halfH = 20; // half the player TODO: do it better
-
+    // clamp TYLKO X; Y zostawiamy dla lerpa
+    const halfW = 20;
     let x = this.body.position.x;
-    let y = this.body.position.y;
+    if (x < halfW) x = halfW;
+    if (x > WORLD.w - halfW) x = WORLD.w - halfW;
 
-    if (x < halfW) {
-      x = halfW;
-    }
-    if (x > WORLD.w - halfW) {
-      x = WORLD.w - halfW;
-    }
-    if (y < halfH) {
-      y = halfH;
-    }
-    if (y > WORLD.h - halfH) {
-      y = WORLD.h - halfH;
-    }
-
-    Body.setPosition(this.body, { x, y });
+    Body.setPosition(this.body, { x, y: this.body.position.y });
   }
 
   public get position() {
     return { x: this.body.position.x, y: this.body.position.y };
   }
 
+  // używane do natychmiastowej korekty X (Y zostaje jak było)
   public setFromAuthoritative(x: number, y: number) {
-    Body.setPosition(this.body, { x, y });
+    Body.setPosition(this.body, { x, y }); // nadal zostawiamy – użyjemy sprytnie w LocalAvatar
+  }
+
+  // nowość: kontrola Y z zewnątrz (po lerpie)
+  public setY(y: number) {
+    Body.setPosition(this.body, { x: this.body.position.x, y });
   }
 }
