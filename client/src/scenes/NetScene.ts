@@ -8,6 +8,7 @@ import { RemoteAvatar } from "../entities/RemoteAvatar";
 import { WORLD } from "../config";
 import { MapRenderer } from "../render/MapRenderer";
 import { registerHandlers } from "../net/handlers";
+import { AvatarAnimations } from "../animations/AvatarAnimations";
 
 export class NetScene extends Phaser.Scene {
   private me!: LocalAvatar;
@@ -51,42 +52,7 @@ export class NetScene extends Phaser.Scene {
 
     registerHandlers(this);
 
-    this.anims.create({
-      key: "walk_local",
-      frames: this.anims.generateFrameNumbers("chicken", { start: 0, end: 3 }),
-      frameRate: 6,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "up_local",
-      frames: this.anims.generateFrameNumbers("chicken", {
-        start: 10,
-        end: 12,
-      }),
-      frameRate: 8,
-      repeat: 0,
-    });
-
-    this.anims.create({
-      key: "walk_remote",
-      frames: this.anims.generateFrameNumbers("chickenRemote", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 6,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "up_remote",
-      frames: this.anims.generateFrameNumbers("chickenRemote", {
-        start: 10,
-        end: 12,
-      }),
-      frameRate: 8,
-      repeat: 0,
-    });
+    AvatarAnimations.register(this);
   }
 
   update(_time: number) {
