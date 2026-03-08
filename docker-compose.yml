@@ -1,31 +1,40 @@
-services:
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: mmo_server
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - ./server:/app
-    command: npm run dev
-    restart: unless-stopped
+version: "3.9"
 
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: mmo_client
+services:
+  game-server:
+    build: ./server
+    container_name: mmo_server
+    restart: always
     ports:
-      - "3001:3001"
+      - "2567:2567"
     environment:
-      - NODE_ENV=development
-    volumes:
-      - ./client:/app
-      - /app/node_modules
-    command: npm run dev -- --host 0.0.0.0 --port 3001
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/mmo
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
-      - server
-    restart: unless-stopped
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:18
+    container_name: mmo_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mmo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:8
+    container_name: mmo_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

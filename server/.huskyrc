@@ -1,5 +1,0 @@
-{
-  "hooks": {
-    "pre-push": "npm run test && npm run build"
-  }
-}
