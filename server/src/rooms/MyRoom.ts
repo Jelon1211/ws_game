@@ -1,53 +1,62 @@
-import { Room, Client, CloseCode } from "colyseus";
-import { MyRoomState, Player } from "./schema/MyRoomState.js";
+import { Room, Client } from "@colyseus/core";
+import { State } from "../schema/State.js";
+import { Player } from "../schema/Player.js";
+import type { MoveInput } from "../types/Input.js";
+import { GameLoop } from "../systems/GameLoop.js";
+import { GameConfig } from "../constants/GameConfig.js";
 
-export class MyRoom extends Room {
-  maxClients = 4;
-  state = new MyRoomState();
+export class GameRoom extends Room {
+  public override maxClients: number = 50;
+  public override state = new State();
 
-  messages = {
-    yourMessageType: (client: Client, message: any) => {
-      /**
-       * Handle "yourMessageType" message.
-       */
-      console.log(client.sessionId, "sent a message:", message);
-    },
-  };
+  public override onCreate(): void {
+    console.log("🟢 GameRoom created");
 
-  onCreate(options: any) {
-    console.log("Room created with options:", options);
+    this.registerMessageHandlers();
+    this.startGameLoop();
   }
 
-  onJoin(client: Client, options: any) {
-    /**
-     * Called when a client joins the room.
-     */
-    console.log(client.sessionId, "joined!");
-
-    const mapWidth = 800;
-    const mapHeight = 600;
+  public override onJoin(client: Client): void {
+    console.log("➕ Player joined:", client.sessionId);
 
     const player = new Player();
-
-    player.x = Math.random() * mapWidth;
-    player.y = Math.random() * mapHeight;
+    player.x = Math.random() * GameConfig.WORLD.WIDTH;
+    player.y = Math.random() * GameConfig.WORLD.HEIGHT;
+    player.targetX = player.x;
+    player.targetY = player.y;
+    player.mass = GameConfig.PLAYER.START_MASS;
 
     this.state.players.set(client.sessionId, player);
   }
 
-  onLeave(client: Client, code: CloseCode) {
-    /**
-     * Called when a client leaves the room.
-     */
-    console.log(client.sessionId, "left!", code);
-
+  public override onLeave(client: Client): void {
+    console.log("❌ Player left:", client.sessionId);
     this.state.players.delete(client.sessionId);
   }
 
-  onDispose() {
-    /**
-     * Called when the room is disposed.
-     */
-    console.log("room", this.roomId, "disposing...");
+  public override onDispose(): void {
+    console.log("🧹 Room disposed");
+  }
+
+  private registerMessageHandlers(): void {
+    this.onMessage("move", (client, data: MoveInput) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) {
+        return;
+      }
+
+      player.targetX = data.x;
+      player.targetY = data.y;
+    });
+  }
+
+  private startGameLoop(): void {
+    this.setSimulationInterval((deltaTime: number) => {
+      this.updateRoom(deltaTime);
+    }, GameConfig.GAME.TICK_RATE);
+  }
+
+  private updateRoom(deltaTime: number): void {
+    GameLoop.update(this.state, deltaTime);
   }
 }
