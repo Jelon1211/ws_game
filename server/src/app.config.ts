@@ -6,18 +6,18 @@ import {
   createRouter,
   createEndpoint,
 } from "colyseus";
+import { GameRoom } from "./rooms/MyRoom.js";
 
 /**
  * Import your Room files
  */
-import { MyRoom } from "./rooms/MyRoom.js";
 
 const server = defineServer({
   /**
    * Define your room handlers:
    */
   rooms: {
-    my_room: defineRoom(MyRoom),
+    my_room: defineRoom(GameRoom),
   },
 
   /**

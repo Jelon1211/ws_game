@@ -13,30 +13,43 @@ import { CameraSystem } from "../systems/CameraSystem";
 export class GameScene extends Phaser.Scene {
   private readonly roomHandler = new RoomHandler();
 
-  // In scene these ! are acceptable because we know these will be initialized in create() before being used in update()
-  private inputSystem!: InputSystem;
-  private interpolationSystem!: InterpolationSystem;
-  private cameraSystem!: CameraSystem;
+  private inputSystem?: InputSystem;
+  private interpolationSystem?: InterpolationSystem;
+  private cameraSystem?: CameraSystem;
 
   private playerEntities: Record<string, Player> = {};
   private foodEntities: Record<string, Food> = {};
 
-  private myPlayerId!: string;
+  private myPlayerId?: string;
+
+  private isSceneReady = false;
 
   constructor() {
     super(SceneKeys.Game);
   }
 
   async create(): Promise<void> {
-    await this.initializeNetwork();
-    this.initializeSystems();
-    this.registerListeners();
+    await this.initialize();
   }
 
-  update(): void {
-    this.inputSystem.update();
-    this.updateInterpolation();
-    this.updateCamera();
+  private async initialize(): Promise<void> {
+    await this.initializeNetwork();
+
+    this.initializeSystems();
+    this.registerListeners();
+
+    this.isSceneReady = true;
+  }
+
+  update(time: number, delta: number): void {
+    if (!this.isSceneReady) {
+      return;
+    }
+    this.inputSystem!.update(time);
+
+    this.updateInterpolation(delta);
+
+    this.cameraSystem!.update();
   }
 
   private async initializeNetwork(): Promise<void> {
@@ -51,7 +64,7 @@ export class GameScene extends Phaser.Scene {
         this.playerEntities[sessionId] = entity;
 
         if (sessionId === this.myPlayerId) {
-          this.cameraSystem.follow(entity);
+          this.cameraSystem!.follow(entity);
         }
       },
 
@@ -88,24 +101,17 @@ export class GameScene extends Phaser.Scene {
     this.cameraSystem = new CameraSystem(this);
   }
 
-  private updateInterpolation(): void {
+  private updateInterpolation(delta: number): void {
     Object.values(this.playerEntities).forEach((entity) => {
       const { x, y } = entity.getTargetPosition();
 
-      this.interpolationSystem.interpolatePosition(entity, x, y);
+      this.interpolationSystem!.interpolatePosition(entity, x, y, delta);
     });
 
     Object.values(this.foodEntities).forEach((entity) => {
       const { x, y } = entity.getTargetPosition();
 
-      this.interpolationSystem.interpolatePosition(entity, x, y);
+      this.interpolationSystem!.interpolatePosition(entity, x, y, delta);
     });
-  }
-
-  private updateCamera(): void {
-    const myPlayer = this.playerEntities[this.myPlayerId];
-    if (!myPlayer) return;
-
-    this.cameraSystem.updateZoom(myPlayer);
   }
 }
