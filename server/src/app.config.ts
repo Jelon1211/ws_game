@@ -6,7 +6,7 @@ import {
   createRouter,
   createEndpoint,
 } from "colyseus";
-import { GameRoom } from "./rooms/MyRoom.js";
+import { GameRoom } from "./rooms/GameRoom.js";
 
 /**
  * Import your Room files

@@ -41,7 +41,7 @@ export class RoomHandler {
       callbacks.onAdd?.(entity as T, id as string);
     });
 
-    cb.onChange(collectionName, (entity, id) => {
+    cb.onChange(collectionName, (id, entity) => {
       callbacks.onChange?.(entity as T, id as string);
     });
 
