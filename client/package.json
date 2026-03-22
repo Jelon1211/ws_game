@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@colyseus/sdk": "^0.17.34",
+    "@colyseus/schema": "^4.0.19",
     "phaser": "^3.90.0"
   }
 }

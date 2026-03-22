@@ -1,7 +1,9 @@
 import { Room, Callbacks } from "@colyseus/sdk";
 import { colyseusClient } from "./ColyseusClient";
-import type { FoodState, PlayerState } from "../types";
 import { NetworkConstants } from "../constants/Network";
+import type { State } from "./schema/State";
+import type { Player } from "./schema/Player";
+import type { Food } from "./schema/Food";
 
 type EntityCallbacks<T> = {
   onAdd?: (entity: T, id: string) => void;
@@ -9,10 +11,15 @@ type EntityCallbacks<T> = {
   onRemove?: (id: string) => void;
 };
 
-export class RoomHandler {
-  private _room: Room | null = null;
+enum CollectionNameEnum {
+  PLAYERS = "players",
+  FOODS = "foods",
+}
 
-  get room(): Room {
+export class RoomHandler {
+  private _room: Room<State> | null = null;
+
+  get room(): Room<State> {
     if (!this._room) {
       throw new Error("Room not initialized. Call join() first.");
     }
@@ -31,31 +38,35 @@ export class RoomHandler {
     console.log("✅ Connected:", this._room.sessionId);
   }
 
-  listenCollection<T>(
-    collectionName: string,
+  listenCollection<T extends object>(
+    collectionName: CollectionNameEnum,
     callbacks: EntityCallbacks<T>,
   ): void {
     const cb = Callbacks.get(this.room);
 
-    cb.onAdd(collectionName, (entity, id) => {
-      callbacks.onAdd?.(entity as T, id as string);
+    cb.onAdd(collectionName, (entity, key) => {
+      const id = String(key);
+      const typedEntity = entity as T;
+
+      callbacks.onAdd?.(typedEntity, id);
+
+      cb.onChange(entity, () => {
+        callbacks.onChange?.(typedEntity, id);
+      });
     });
 
-    cb.onChange(collectionName, (id, entity) => {
-      callbacks.onChange?.(entity as T, id as string);
-    });
-
-    cb.onRemove(collectionName, (_, id) => {
-      callbacks.onRemove?.(id as string);
+    cb.onRemove(collectionName, (_, key) => {
+      const id = String(key);
+      callbacks.onRemove?.(id);
     });
   }
 
-  listenPlayers(callbacks: EntityCallbacks<PlayerState>): void {
-    this.listenCollection<PlayerState>("players", callbacks);
+  listenPlayers(callbacks: EntityCallbacks<Player>): void {
+    this.listenCollection<Player>(CollectionNameEnum.PLAYERS, callbacks);
   }
 
-  listenFood(callbacks: EntityCallbacks<FoodState>): void {
-    this.listenCollection<FoodState>("foods", callbacks);
+  listenFood(callbacks: EntityCallbacks<Food>): void {
+    this.listenCollection<Food>(CollectionNameEnum.FOODS, callbacks);
   }
 
   sendInput(target: { x: number; y: number }): void {

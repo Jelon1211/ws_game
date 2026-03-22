@@ -1,7 +1,7 @@
 import { Schema, type, MapSchema } from "@colyseus/schema";
 
-import { Player } from "./Player.js";
-import { Food } from "./Food.js";
+import { Player } from "./Player";
+import { Food } from "./Food";
 
 export class State extends Schema {
   @type({ map: Player })
