@@ -1,6 +1,5 @@
-import { State } from "../schema/State.js";
-import { Player } from "../schema/Player.js";
-import { Food } from "../schema/Food.js";
+import { State } from "../schema/State";
+import { Player } from "../schema/Player";
 
 export class CollisionSystem {
   static update(state: State): void {

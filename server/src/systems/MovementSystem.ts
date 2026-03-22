@@ -1,5 +1,5 @@
-import { State } from "../schema/State.js";
-import { Player } from "../schema/Player.js";
+import { State } from "../schema/State";
+import { Player } from "../schema/Player";
 
 export class MovementSystem {
   static update(state: State, delta: number): void {

@@ -3,10 +3,9 @@
   "name": "my-app",
   "version": "0.17.0",
   "description": "npm init template for bootstrapping an empty Colyseus project",
-  "type": "module",
   "main": "build/index.js",
   "engines": {
-    "node": ">= 20.9.0"
+    "node": ">= 24.13.0"
   },
   "scripts": {
     "start": "tsx watch src/index.ts",
@@ -34,6 +33,7 @@
   },
   "dependencies": {
     "@colyseus/tools": "^0.17.0",
+    "@colyseus/schema": "^4.0.19",
     "colyseus": "^0.17.6",
     "express": "^4.18.2"
   }

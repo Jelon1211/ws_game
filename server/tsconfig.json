@@ -1,15 +1,10 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["../shared/*"]
-    },
-
     "outDir": "build",
 
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
 
     "allowJs": true,
     "strictNullChecks": false,

@@ -1,4 +1,4 @@
-import { Food } from "../schema/Food.js";
+import { Food } from "../schema/Food";
 
 export class FoodEntity {
   static setPosition(food: Food, x: number, y: number): void {

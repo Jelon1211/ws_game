@@ -1,9 +1,9 @@
 import { Room, Client } from "@colyseus/core";
-import { State } from "../schema/State.js";
-import { Player } from "../schema/Player.js";
-import type { MoveInput } from "../types/Input.js";
-import { GameLoop } from "../systems/GameLoop.js";
-import { GameConfig } from "../constants/GameConfig.js";
+import { State } from "../schema/State";
+import { Player } from "../schema/Player";
+import type { MoveInput } from "../types/Input";
+import { GameLoop } from "../systems/GameLoop";
+import { GameConfig } from "../constants/GameConfig";
 
 export class GameRoom extends Room {
   public override maxClients: number = 50;
