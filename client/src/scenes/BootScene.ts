@@ -18,8 +18,7 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     console.log("✅ Assets loaded");
 
-    this.scene.start(SceneKeys.Game);
-    this.scene.launch(SceneKeys.UI);
+    this.scene.start(SceneKeys.Menu);
   }
 
   private loadAssets(): void {

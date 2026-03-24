@@ -28,7 +28,8 @@ export class GameScene extends Phaser.Scene {
     super(SceneKeys.Game);
   }
 
-  async create(): Promise<void> {
+  async create(data: { nickname: string }): Promise<void> {
+    console.log("data w gamescene: ", data);
     await this.initialize();
   }
 

@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { GameScene } from "../scenes/GameScene";
 import { BootScene } from "../scenes/BootScene";
 import { UIScene } from "../scenes/UIScene";
+import { MenuScene } from "../scenes/MenuScene";
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -24,5 +25,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
 
   pixelArt: true,
 
-  scene: [BootScene, GameScene, UIScene],
+  scene: [BootScene, MenuScene, GameScene, UIScene],
 };

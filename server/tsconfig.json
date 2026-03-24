@@ -1,15 +1,17 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "build",
-
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
     "allowJs": true,
     "strictNullChecks": false,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitOverride": true
+    "useDefineForClassFields": false
   },
   "include": ["src"]
 }

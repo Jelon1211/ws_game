@@ -1,5 +1,4 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -18,7 +17,14 @@
     "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
-    "moduleDetection": "force"
+    "moduleDetection": "force",
+    "strict": true,
+
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+
+    "skipLibCheck": true,
+    "esModuleInterop": true
   },
   "include": ["src"]
 }

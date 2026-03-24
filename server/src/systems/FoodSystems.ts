@@ -1,5 +1,5 @@
-import { State } from "../schema/State";
-import { Food } from "../schema/Food";
+import { State } from "../schema/State.js";
+import { Food } from "../schema/Food.js";
 import { generateId } from "colyseus";
 
 const MAX_FOOD = 200;

@@ -1,4 +1,4 @@
-import { Player } from "../schema/Player";
+import { Player } from "../schema/Player.js";
 
 export class PlayerEntity {
   static setTarget(player: Player, x: number, y: number): void {

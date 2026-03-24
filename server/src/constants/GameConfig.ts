@@ -1,7 +1,7 @@
 export const GameConfig = {
   WORLD: {
-    WIDTH: 2000,
-    HEIGHT: 2000,
+    WIDTH: 1280,
+    HEIGHT: 720,
   },
 
   PLAYER: {

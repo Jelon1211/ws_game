@@ -18,7 +18,7 @@ export class CameraSystem {
 
   private readonly config: CameraConfig = {
     followLerp: 0.1,
-    minZoom: 0.2,
+    minZoom: 0.7,
     maxZoom: 1,
     zoomSmoothing: 0.1,
     zoomFactor: 100,

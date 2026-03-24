@@ -1,7 +1,7 @@
-import { State } from "../schema/State";
-import { MovementSystem } from "./MovementSystem";
-import { CollisionSystem } from "./CollisionSystem";
-import { FoodSystem } from "./FoodSystems";
+import { State } from "../schema/State.js";
+import { MovementSystem } from "./MovementSystem.js";
+import { CollisionSystem } from "./CollisionSystem.js";
+import { FoodSystem } from "./FoodSystems.js";
 
 export class GameLoop {
   static update(state: State, delta: number): void {
