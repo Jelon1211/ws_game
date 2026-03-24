@@ -1,33 +1,46 @@
 import Phaser from "phaser";
 
+type Snapshot = {
+  x: number;
+  y: number;
+  timestamp: number;
+};
+
 export abstract class BaseEntity<TState> extends Phaser.GameObjects.Container {
   private readonly id: string;
 
-  protected targetX: number;
-  protected targetY: number;
+  private snapshots: Snapshot[] = [];
 
   constructor(scene: Phaser.Scene, x: number, y: number, id: string) {
     super(scene, x, y);
 
     this.id = id;
-    this.targetX = x;
-    this.targetY = y;
+
+    this.snapshots.push({
+      x,
+      y,
+      timestamp: this.scene.time.now,
+    });
 
     scene.add.existing(this);
   }
 
   abstract updateFromServer(data: TState): void;
 
-  setTargetPosition(x: number, y: number) {
-    this.targetX = x;
-    this.targetY = y;
+  protected addSnapshot(x: number, y: number): void {
+    this.snapshots.push({
+      x,
+      y,
+      timestamp: this.scene.time.now,
+    });
+
+    const cutoff = this.scene.time.now - 1000;
+
+    this.snapshots = this.snapshots.filter((s) => s.timestamp >= cutoff);
   }
 
-  getTargetPosition() {
-    return {
-      x: this.targetX,
-      y: this.targetY,
-    };
+  public getSnapshots(): Snapshot[] {
+    return this.snapshots;
   }
 
   destroyEntity() {

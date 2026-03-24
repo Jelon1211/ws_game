@@ -1,8 +1,8 @@
-import type { FoodState } from "../types";
+import { Food as FoodSchema } from "../networking/schema/Food";
 import { BaseEntity } from "./BaseEntity";
 import Phaser from "phaser";
 
-export class Food extends BaseEntity<FoodState> {
+export class Food extends BaseEntity<FoodSchema> {
   private circle: Phaser.GameObjects.Arc;
 
   constructor(scene: Phaser.Scene, x: number, y: number, id: string) {
@@ -12,7 +12,7 @@ export class Food extends BaseEntity<FoodState> {
     this.add(this.circle);
   }
 
-  updateFromServer(data: FoodState): void {
-    this.setTargetPosition(data.x, data.y);
+  updateFromServer(data: FoodSchema): void {
+    this.addSnapshot(data.x, data.y);
   }
 }

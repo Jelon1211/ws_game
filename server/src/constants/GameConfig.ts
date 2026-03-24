@@ -5,7 +5,7 @@ export const GameConfig = {
   },
 
   PLAYER: {
-    BASE_SPEED: 200,
+    BASE_SPEED: 500,
     MASS_RADIUS_FACTOR: 4,
     START_MASS: 10,
   },

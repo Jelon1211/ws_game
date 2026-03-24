@@ -29,7 +29,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   async create(data: { nickname: string }): Promise<void> {
-    console.log("data w gamescene: ", data);
     await this.initialize();
   }
 
@@ -104,15 +103,11 @@ export class GameScene extends Phaser.Scene {
 
   private updateInterpolation(delta: number): void {
     Object.values(this.playerEntities).forEach((entity) => {
-      const { x, y } = entity.getTargetPosition();
-
-      this.interpolationSystem!.interpolatePosition(entity, x, y, delta);
+      this.interpolationSystem!.interpolate(entity);
     });
 
     Object.values(this.foodEntities).forEach((entity) => {
-      const { x, y } = entity.getTargetPosition();
-
-      this.interpolationSystem!.interpolatePosition(entity, x, y, delta);
+      this.interpolationSystem!.interpolate(entity);
     });
   }
 }

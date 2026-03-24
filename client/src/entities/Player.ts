@@ -1,9 +1,9 @@
 import Phaser from "phaser";
 import { BaseEntity } from "./BaseEntity";
 import { massToRadius } from "../utils/math";
-import type { PlayerState } from "../types";
+import type { Player as PlayerSchema } from "../networking/schema/Player";
 
-export class Player extends BaseEntity<PlayerState> {
+export class Player extends BaseEntity<PlayerSchema> {
   private readonly bodyCircle: Phaser.GameObjects.Arc;
 
   private _mass: number = 10;
@@ -33,8 +33,8 @@ export class Player extends BaseEntity<PlayerState> {
     this.bodyCircle.setRadius(radius);
   }
 
-  updateFromServer(data: PlayerState): void {
-    this.setTargetPosition(data.x, data.y);
+  updateFromServer(data: PlayerSchema): void {
+    this.addSnapshot(data.x, data.y);
     this.setMass(data.mass);
   }
 }

@@ -8,7 +8,7 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 1280,
   height: 720,
-  backgroundColor: "#b6d53c",
+  backgroundColor: "#3b4221",
   parent: "game-container",
 
   physics: {

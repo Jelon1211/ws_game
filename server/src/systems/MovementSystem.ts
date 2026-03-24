@@ -1,5 +1,6 @@
 import { State } from "../schema/State.js";
 import { Player } from "../schema/Player.js";
+import { GameConfig } from "../constants/GameConfig.js";
 
 export class MovementSystem {
   static update(state: State, delta: number): void {
@@ -30,6 +31,7 @@ export class MovementSystem {
   }
 
   private static getSpeed(mass: number): number {
-    return 200 / Math.sqrt(mass);
+    // return GameConfig.PLAYER.BASE_SPEED / Math.sqrt(mass);
+    return GameConfig.PLAYER.BASE_SPEED;
   }
 }
