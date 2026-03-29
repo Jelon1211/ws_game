@@ -1,9 +1,9 @@
 import { Room, Client } from "@colyseus/core";
 import { State } from "../schema/State.js";
 import { Player } from "../schema/Player.js";
-import type { MoveInput } from "../types/Input.js";
 import { GameLoop } from "../systems/GameLoop.js";
 import { GameConfig } from "../constants/GameConfig.js";
+import { MsgTypes, RoomMessageMap } from "../shared/types/Message.js";
 
 export class GameRoom extends Room {
   public override maxClients: number = 50;
@@ -16,15 +16,16 @@ export class GameRoom extends Room {
     this.startGameLoop();
   }
 
-  public override onJoin(client: Client): void {
+  public override onJoin(
+    client: Client,
+    options: { nickname: Player["nickname"] },
+  ): void {
     console.log("➕ Player joined:", client.sessionId);
 
     const player = new Player();
     player.x = Math.random() * GameConfig.WORLD.WIDTH;
     player.y = Math.random() * GameConfig.WORLD.HEIGHT;
-    player.targetX = player.x;
-    player.targetY = player.y;
-    player.mass = GameConfig.PLAYER.START_MASS;
+    player.nickname = options.nickname;
 
     this.state.players.set(client.sessionId, player);
   }
@@ -39,15 +40,18 @@ export class GameRoom extends Room {
   }
 
   private registerMessageHandlers(): void {
-    this.onMessage("move", (client, data: MoveInput) => {
-      const player = this.state.players.get(client.sessionId);
-      if (!player) {
-        return;
-      }
+    this.onMessage(
+      MsgTypes.Move,
+      (client, data: RoomMessageMap[MsgTypes.Move]) => {
+        const player = this.state.players.get(client.sessionId);
+        if (!player) {
+          return;
+        }
 
-      player.targetX = data.x;
-      player.targetY = data.y;
-    });
+        console.log(player.x);
+        player.x += 2;
+      },
+    );
   }
 
   private startGameLoop(): void {

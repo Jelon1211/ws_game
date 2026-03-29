@@ -1,22 +1,14 @@
 export const GameConfig = {
   WORLD: {
-    WIDTH: 1280,
-    HEIGHT: 720,
+    WIDTH: 800,
+    HEIGHT: 600,
   },
 
   PLAYER: {
-    BASE_SPEED: 500,
-    MASS_RADIUS_FACTOR: 4,
-    START_MASS: 10,
-  },
-
-  FOOD: {
-    MAX_COUNT: 200,
-    RADIUS: 5,
-    MASS_GAIN: 1,
+    BASE_SPEED: 100,
   },
 
   GAME: {
-    TICK_RATE: 1000 / 60,
+    TICK_RATE: 1000 / 10,
   },
 } as const;

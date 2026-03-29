@@ -11,27 +11,5 @@ export class MovementSystem {
     });
   }
 
-  private static movePlayer(player: Player, dt: number): void {
-    const dx = player.targetX - player.x;
-    const dy = player.targetY - player.y;
-
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (distance < 1) {
-      return;
-    }
-
-    const dirX = dx / distance;
-    const dirY = dy / distance;
-
-    const speed = this.getSpeed(player.mass);
-
-    player.x += dirX * speed * dt;
-    player.y += dirY * speed * dt;
-  }
-
-  private static getSpeed(mass: number): number {
-    // return GameConfig.PLAYER.BASE_SPEED / Math.sqrt(mass);
-    return GameConfig.PLAYER.BASE_SPEED;
-  }
+  private static movePlayer(player: Player, dt: number): void {}
 }

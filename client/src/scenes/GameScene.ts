@@ -1,113 +1,43 @@
 import Phaser from "phaser";
-
 import { SceneKeys } from "../constants/SceneKeys";
+import { colyseusClient } from "../networking/ColyseusClient";
+import { Player } from "../networking/schema/Player";
 import { RoomHandler } from "../networking/RoomHandler";
-
-import { Player } from "../entities/Player";
-import { Food } from "../entities/Food";
-
 import { InputSystem } from "../systems/InputSystem";
-import { InterpolationSystem } from "../systems/InterpolationSystem";
-import { CameraSystem } from "../systems/CameraSystem";
+import { MsgTypes } from "../shared/types/Message";
 
 export class GameScene extends Phaser.Scene {
-  private readonly roomHandler = new RoomHandler();
+  private roomHandler!: RoomHandler;
 
-  private inputSystem?: InputSystem;
-  private interpolationSystem?: InterpolationSystem;
-  private cameraSystem?: CameraSystem;
-
-  private playerEntities: Record<string, Player> = {};
-  private foodEntities: Record<string, Food> = {};
-
-  private myPlayerId?: string;
-
-  private isSceneReady = false;
+  // Systems
+  private inputSytem!: InputSystem;
 
   constructor() {
     super(SceneKeys.Game);
   }
 
-  async create(data: { nickname: string }): Promise<void> {
-    await this.initialize();
-  }
+  async create({ nickname }: { nickname: Player["nickname"] }) {
+    this.initalizeSystems();
 
-  private async initialize(): Promise<void> {
-    await this.initializeNetwork();
+    const client = colyseusClient.getClient();
 
-    this.initializeSystems();
-    this.registerListeners();
+    this.roomHandler = new RoomHandler(client, this);
 
-    this.isSceneReady = true;
+    await this.roomHandler.joinOrCreateRoom(nickname);
   }
 
   update(time: number, delta: number): void {
-    if (!this.isSceneReady) {
+    if (!this.roomHandler) {
+      console.warn("No room handler!");
       return;
     }
-    this.inputSystem!.update(time);
 
-    this.updateInterpolation(delta);
+    const input = this.inputSytem.updateInput();
 
-    this.cameraSystem!.update();
+    this.roomHandler.roomSend(MsgTypes.Move, input);
   }
 
-  private async initializeNetwork(): Promise<void> {
-    await this.roomHandler.join();
-    this.myPlayerId = this.roomHandler.sessionId;
-  }
-
-  private registerListeners(): void {
-    this.roomHandler.listenPlayers({
-      onAdd: (player, sessionId) => {
-        const entity = new Player(this, player.x, player.y, sessionId);
-        this.playerEntities[sessionId] = entity;
-
-        if (sessionId === this.myPlayerId) {
-          this.cameraSystem!.follow(entity);
-        }
-      },
-
-      onChange: (player, sessionId) => {
-        this.playerEntities[sessionId]?.updateFromServer(player);
-      },
-
-      onRemove: (sessionId) => {
-        this.playerEntities[sessionId]?.destroyEntity();
-        delete this.playerEntities[sessionId];
-      },
-    });
-
-    this.roomHandler.listenFood({
-      onAdd: (food, id) => {
-        const entity = new Food(this, food.x, food.y, id);
-        this.foodEntities[id] = entity;
-      },
-
-      onChange: (food, id) => {
-        this.foodEntities[id]?.updateFromServer(food);
-      },
-
-      onRemove: (id) => {
-        this.foodEntities[id]?.destroyEntity();
-        delete this.foodEntities[id];
-      },
-    });
-  }
-
-  private initializeSystems(): void {
-    this.inputSystem = new InputSystem(this, this.roomHandler);
-    this.interpolationSystem = new InterpolationSystem();
-    this.cameraSystem = new CameraSystem(this);
-  }
-
-  private updateInterpolation(delta: number): void {
-    Object.values(this.playerEntities).forEach((entity) => {
-      this.interpolationSystem!.interpolate(entity);
-    });
-
-    Object.values(this.foodEntities).forEach((entity) => {
-      this.interpolationSystem!.interpolate(entity);
-    });
+  private initalizeSystems() {
+    this.inputSytem = new InputSystem(this.input);
   }
 }
