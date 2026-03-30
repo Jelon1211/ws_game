@@ -3,11 +3,12 @@ import { GameScene } from "../scenes/GameScene";
 import { BootScene } from "../scenes/BootScene";
 import { UIScene } from "../scenes/UIScene";
 import { MenuScene } from "../scenes/MenuScene";
+import { GameConfig } from "../shared/configs/GameConfig";
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: GameConfig.WORLD.WIDTH,
+  height: GameConfig.WORLD.HEIGHT,
   backgroundColor: "#3b4221",
   parent: "game-container",
 

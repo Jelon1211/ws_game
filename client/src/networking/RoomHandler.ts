@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import { Callbacks, type Client, type Room } from "@colyseus/sdk";
 import type { State } from "../networking/schema/State";
-import type { Player } from "../networking/schema/Player";
-import type { RoomMessageMap } from "../../../shared/types/Messages";
+import { Player } from "../networking/schema/Player";
+import type { RoomMessageMap } from "../shared/types/Message";
 
 export class RoomHandler {
   private client: Client;
@@ -47,6 +47,12 @@ export class RoomHandler {
       );
 
       this.playerEntities[sessionId] = entity;
+
+      callbacks.onChange(player, () => {
+        console.log(player.x, player.y);
+        entity.x = player.x;
+        entity.y = player.y;
+      });
     });
 
     callbacks.onRemove("players", (_player, sessionId) => {

@@ -2,7 +2,7 @@ import { Room, Client } from "@colyseus/core";
 import { State } from "../schema/State.js";
 import { Player } from "../schema/Player.js";
 import { GameLoop } from "../systems/GameLoop.js";
-import { GameConfig } from "../constants/GameConfig.js";
+import { GameConfig } from "../shared/configs/GameConfig.js";
 import { MsgTypes, RoomMessageMap } from "../shared/types/Message.js";
 
 export class GameRoom extends Room {
@@ -47,9 +47,10 @@ export class GameRoom extends Room {
         if (!player) {
           return;
         }
-
-        console.log(player.x);
-        player.x += 2;
+        player.left = data.left;
+        player.right = data.right;
+        player.up = data.up;
+        player.down = data.down;
       },
     );
   }
