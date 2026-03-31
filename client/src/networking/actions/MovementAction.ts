@@ -1,12 +1,18 @@
-import type { TInput } from "../../types/Inputs";
-import { NetwrokAction } from "./NetworkAction";
+import type { MoveMessage, TInput } from "../../shared/types/Message";
+import { NetworkAction } from "./NetworkAction";
 
-export class MovementAction extends NetwrokAction<TInput> {
-  private lastActiveTime = 0;
+export class MovementAction extends NetworkAction<TInput, MoveMessage> {
+  private seq = 0;
+
+  protected buildMessage(data: TInput, now: number): MoveMessage {
+    return {
+      seq: this.seq++,
+      clientTime: now,
+      input: { ...data },
+    };
+  }
 
   protected shouldSend(data: TInput, now: number): boolean {
-    const isMoving = data.left || data.right || data.up || data.down;
-
     const changed =
       !this.lastSend ||
       data.left !== this.lastSend.left ||
@@ -14,22 +20,7 @@ export class MovementAction extends NetwrokAction<TInput> {
       data.up !== this.lastSend.up ||
       data.down !== this.lastSend.down;
 
-    if (isMoving) {
-      this.lastActiveTime = now;
-    }
-    const idleTime = now - this.lastActiveTime;
-
-    let heartbeatRate = 100;
-
-    if (!isMoving) {
-      if (idleTime > 3000) {
-        heartbeatRate = 1000;
-      } else {
-        heartbeatRate = 250;
-      }
-    }
-
-    const heartbeat = now - this.lastSendTime > heartbeatRate;
+    const heartbeat = now - this.lastSendTime > 100;
 
     return changed || heartbeat;
   }

@@ -1,5 +1,4 @@
-import type { MsgTypes } from "../../shared/types/Message";
-import type { TInput } from "../../types/Inputs";
+import type { MsgTypes, TInput } from "../../shared/types/Message";
 import type { INetworkAction } from "../../types/Network";
 
 export type ActionMap = {

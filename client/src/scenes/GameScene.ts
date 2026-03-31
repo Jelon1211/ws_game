@@ -56,7 +56,6 @@ export class GameScene extends Phaser.Scene {
 
     const localPlayer = this.entityManager.getPlayer(sessionId);
 
-    // ⚠️ upewnij się że to LocalPlayerEntity
     if (localPlayer instanceof LocalPlayerEntity) {
       localPlayer.update(delta, input);
     }

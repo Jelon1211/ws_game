@@ -1,3 +1,3 @@
-export interface INetworkAction<TInput> {
-  update(input: TInput): void;
+export interface INetworkAction<T> {
+  update(data: T): void;
 }

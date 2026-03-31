@@ -11,7 +11,9 @@ export class NetworkActionFactory {
 
     manager.register(
       MsgTypes.Move,
-      new MovementAction((input) => roomHandler.roomSend(MsgTypes.Move, input)),
+      new MovementAction((moveMessage) =>
+        roomHandler.roomSend(MsgTypes.Move, moveMessage),
+      ),
     );
 
     return manager;

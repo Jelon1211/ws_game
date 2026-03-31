@@ -1,17 +1,22 @@
-export abstract class NetwrokAction<T> {
-  protected lastSend: T | null = null;
+export abstract class NetworkAction<TInput, TPayload = TInput> {
+  protected lastSend: TInput | null = null;
   protected lastSendTime: number = 0;
 
-  constructor(protected send: (data: T) => void) {}
+  constructor(protected send: (data: TPayload) => void) {}
 
-  protected shouldSend(data: T, now: number): boolean {
-    return true; // always orverride
+  protected shouldSend(data: TInput, now: number): boolean {
+    return true;
   }
 
-  public update(data: T) {
+  protected buildMessage(data: TInput, now: number): TPayload {
+    return data as unknown as TPayload;
+  }
+
+  public update(data: TInput) {
     const now = performance.now();
     if (this.shouldSend(data, now)) {
-      this.send(data);
+      const message = this.buildMessage(data, now);
+      this.send(message);
       this.lastSend = structuredClone(data);
       this.lastSendTime = now;
     }
