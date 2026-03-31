@@ -3,19 +3,24 @@ import { Callbacks, type Client, type Room } from "@colyseus/sdk";
 import type { State } from "../networking/schema/State";
 import { Player } from "../networking/schema/Player";
 import type { RoomMessageMap } from "../shared/types/Message";
+import type { EntityManager } from "../entities/EntityManager";
+import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
+import { RemotePlayerEntity } from "../entities/RemotePlayerEntity ";
 
 export class RoomHandler {
   private client: Client;
   private room: Room<State> | null = null;
+  private entityManager: EntityManager;
   private scene: Phaser.Scene;
 
-  private playerEntities: {
-    [sessionId: string]: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
-  } = {};
-
-  constructor(client: Client, scene: Phaser.Scene) {
-    this.client = client;
+  constructor(
+    scene: Phaser.Scene,
+    client: Client,
+    entityManager: EntityManager,
+  ) {
     this.scene = scene;
+    this.client = client;
+    this.entityManager = entityManager;
   }
 
   public async joinOrCreateRoom(nickname: Player["nickname"]) {
@@ -40,28 +45,21 @@ export class RoomHandler {
     const callbacks = Callbacks.get(this.room);
 
     callbacks.onAdd("players", (player, sessionId) => {
-      const entity = this.scene.physics.add.image(
-        player.x,
-        player.y,
-        "player_ship",
-      );
+      const isLocal = sessionId === this.room?.sessionId;
 
-      this.playerEntities[sessionId] = entity;
+      const entity = isLocal
+        ? new LocalPlayerEntity(this.scene, player.x, player.y)
+        : new RemotePlayerEntity(this.scene, player.x, player.y);
+
+      this.entityManager.addPlayer(sessionId, entity);
 
       callbacks.onChange(player, () => {
-        console.log(player.x, player.y);
-        entity.x = player.x;
-        entity.y = player.y;
+        entity.setServerState(player.x, player.y);
       });
     });
 
     callbacks.onRemove("players", (_player, sessionId) => {
-      const entity = this.playerEntities[sessionId];
-
-      if (entity) {
-        entity.destroy();
-        delete this.playerEntities[sessionId];
-      }
+      this.entityManager.removePlayer(sessionId);
     });
   }
 
@@ -77,11 +75,5 @@ export class RoomHandler {
       return console.warn("No room initalized");
     }
     return this.room;
-  }
-
-  public getEntities(): {
-    [sessionId: string]: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
-  } {
-    return this.playerEntities;
   }
 }

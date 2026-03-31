@@ -5,7 +5,7 @@ export abstract class NetwrokAction<T> {
   constructor(protected send: (data: T) => void) {}
 
   protected shouldSend(data: T, now: number): boolean {
-    return true; // orverride
+    return true; // always orverride
   }
 
   public update(data: T) {

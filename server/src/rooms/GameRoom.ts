@@ -47,6 +47,7 @@ export class GameRoom extends Room {
         if (!player) {
           return;
         }
+        console.log("tutaj data kiedy i jaka: ", data);
         player.left = data.left;
         player.right = data.right;
         player.up = data.up;

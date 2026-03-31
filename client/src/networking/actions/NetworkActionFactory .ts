@@ -5,7 +5,6 @@ import type { RoomHandler } from "../RoomHandler";
 
 export class NetworkActionFactory {
   static create(roomHandler: RoomHandler) {
-    console.log(roomHandler);
     const manager = new NetworkActionManager<ActionMap>((type, payload) => {
       roomHandler.roomSend(type, payload);
     });

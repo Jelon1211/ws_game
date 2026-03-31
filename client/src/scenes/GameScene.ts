@@ -10,6 +10,8 @@ import type {
   NetworkActionManager,
 } from "../networking/actions/NetworkActionManager";
 import { NetworkActionFactory } from "../networking/actions/NetworkActionFactory ";
+import { EntityManager } from "../entities/EntityManager";
+import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
 
 export class GameScene extends Phaser.Scene {
   private roomHandler!: RoomHandler;
@@ -21,6 +23,9 @@ export class GameScene extends Phaser.Scene {
   // Action managers
   private actions!: NetworkActionManager<ActionMap>;
 
+  // Entities
+  private entityManager!: EntityManager;
+
   constructor() {
     super(SceneKeys.Game);
   }
@@ -30,7 +35,9 @@ export class GameScene extends Phaser.Scene {
 
     const client = colyseusClient.getClient();
 
-    this.roomHandler = new RoomHandler(client, this);
+    this.entityManager = new EntityManager();
+
+    this.roomHandler = new RoomHandler(this, client, this.entityManager);
 
     await this.roomHandler.joinOrCreateRoom(nickname);
 
@@ -43,10 +50,20 @@ export class GameScene extends Phaser.Scene {
     if (!this.isSceneReady || !this.actions || !this.roomHandler) {
       return;
     }
+    const sessionId = this.roomHandler.getRoom()!.sessionId;
 
     const input = this.inputSytem.updateInput();
 
+    const localPlayer = this.entityManager.getPlayer(sessionId);
+
+    // ⚠️ upewnij się że to LocalPlayerEntity
+    if (localPlayer instanceof LocalPlayerEntity) {
+      localPlayer.update(delta, input);
+    }
+
     this.actions.update(MsgTypes.Move, input);
+
+    this.entityManager.update(delta, sessionId);
   }
 
   private initalizeSystems() {
