@@ -26,5 +26,10 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
 
   pixelArt: true,
 
+  fps: {
+    target: GameConfig.GAME.FPS,
+    forceSetTimeOut: true,
+  },
+
   scene: [BootScene, MenuScene, GameScene, UIScene],
 };

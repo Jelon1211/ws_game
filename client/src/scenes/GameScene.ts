@@ -12,6 +12,7 @@ import type {
 import { NetworkActionFactory } from "../networking/actions/NetworkActionFactory ";
 import { EntityManager } from "../entities/EntityManager";
 import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
+import type { MovementAction } from "src/networking/actions/MovementAction";
 
 export class GameScene extends Phaser.Scene {
   private roomHandler!: RoomHandler;
@@ -40,8 +41,17 @@ export class GameScene extends Phaser.Scene {
     this.roomHandler = new RoomHandler(this, client, this.entityManager);
 
     await this.roomHandler.joinOrCreateRoom(nickname);
-
     this.actions = NetworkActionFactory.create(this.roomHandler);
+
+    const sessionId = this.roomHandler.getRoom()!.sessionId;
+    const movementAction = this.actions.get(MsgTypes.Move) as MovementAction;
+
+    movementAction.setOnSent((seq, input) => {
+      const localPlayer = this.entityManager.getPlayer(sessionId);
+      if (localPlayer instanceof LocalPlayerEntity) {
+        localPlayer.onInputSent(seq, input);
+      }
+    });
 
     this.isSceneReady = true;
   }

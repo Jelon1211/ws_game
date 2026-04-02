@@ -12,6 +12,8 @@ export abstract class NetworkAction<TInput, TPayload = TInput> {
     return data as unknown as TPayload;
   }
 
+  protected afterSend(message: TPayload, data: TInput): void {}
+
   public update(data: TInput) {
     const now = performance.now();
     if (this.shouldSend(data, now)) {

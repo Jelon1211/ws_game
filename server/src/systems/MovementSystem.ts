@@ -1,27 +1,36 @@
 import { State } from "../schema/State.js";
 import { GameConfig } from "../shared/configs/GameConfig.js";
 
-// systems/MovementSystem.ts
 export class MovementSystem {
   static update(state: State, delta: number): void {
+    const dt = delta / 1000;
     const speed = GameConfig.PLAYER.BASE_SPEED;
 
     state.players.forEach((player) => {
       const inputs = player.inputBuffer.splice(0);
 
       for (const { seq, input } of inputs) {
-        const dx = (input.right ? 1 : 0) - (input.left ? 1 : 0);
-        const dy = (input.up ? 1 : 0) - (input.down ? 1 : 0);
-
-        const length = Math.hypot(dx, dy);
-        if (length > 0) {
-          player.x += (dx / length) * speed * (delta / 1000);
-          player.y -= (dy / length) * speed * (delta / 1000);
-        }
+        player.left = input.left;
+        player.right = input.right;
+        player.up = input.up;
+        player.down = input.down;
 
         if (seq > player.lastProcessedSeq) {
           player.lastProcessedSeq = seq;
         }
+      }
+
+      const dx = (player.right ? 1 : 0) - (player.left ? 1 : 0);
+      const dy = (player.up ? 1 : 0) - (player.down ? 1 : 0);
+
+      const length = Math.hypot(dx, dy);
+
+      if (length > 0) {
+        const nx = dx / length;
+        const ny = dy / length;
+
+        player.x += nx * speed * dt;
+        player.y -= ny * speed * dt;
       }
 
       player.x = Math.max(0, Math.min(GameConfig.WORLD.WIDTH, player.x));

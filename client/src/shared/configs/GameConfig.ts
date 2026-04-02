@@ -9,6 +9,9 @@ export const GameConfig = {
   },
 
   GAME: {
-    TICK_RATE: 1000 / 10,
+    FPS: 60,
+    get TICK_RATE() {
+      return 1000 / this.FPS;
+    },
   },
 } as const;

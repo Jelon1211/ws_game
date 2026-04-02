@@ -54,7 +54,15 @@ export class RoomHandler {
       this.entityManager.addPlayer(sessionId, entity);
 
       callbacks.onChange(player, () => {
-        entity.setServerState(player.x, player.y);
+        if (isLocal) {
+          (entity as LocalPlayerEntity).reconcile(
+            player.x,
+            player.y,
+            player.lastProcessedSeq,
+          );
+        } else {
+          entity.setServerState(player.x, player.y);
+        }
       });
     });
 
