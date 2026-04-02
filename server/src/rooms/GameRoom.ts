@@ -48,10 +48,11 @@ export class GameRoom extends Room {
           return;
         }
         console.log("tutaj data kiedy i jaka: ", data);
-        player.left = data.left;
-        player.right = data.right;
-        player.up = data.up;
-        player.down = data.down;
+        player.inputBuffer.push({ seq: data.seq, input: data.input });
+
+        if (player.inputBuffer.length > 60) {
+          player.inputBuffer.splice(0, player.inputBuffer.length - 60);
+        }
       },
     );
   }

@@ -1,25 +1,31 @@
 import { State } from "../schema/State.js";
-import { Player } from "../schema/Player.js";
 import { GameConfig } from "../shared/configs/GameConfig.js";
 
+// systems/MovementSystem.ts
 export class MovementSystem {
   static update(state: State, delta: number): void {
     const speed = GameConfig.PLAYER.BASE_SPEED;
+
     state.players.forEach((player) => {
-      const x = (player.right ? 1 : 0) - (player.left ? 1 : 0);
-      const y = (player.up ? 1 : 0) - (player.down ? 1 : 0);
+      const inputs = player.inputBuffer.splice(0);
 
-      const length = Math.hypot(x, y);
+      for (const { seq, input } of inputs) {
+        const dx = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+        const dy = (input.up ? 1 : 0) - (input.down ? 1 : 0);
 
-      if (length > 0) {
-        const nx = x / length;
-        const ny = y / length;
+        const length = Math.hypot(dx, dy);
+        if (length > 0) {
+          player.x += (dx / length) * speed * (delta / 1000);
+          player.y -= (dy / length) * speed * (delta / 1000);
+        }
 
-        player.x += nx * speed * (delta / 1000);
-        player.y -= ny * speed * (delta / 1000);
+        if (seq > player.lastProcessedSeq) {
+          player.lastProcessedSeq = seq;
+        }
       }
+
+      player.x = Math.max(0, Math.min(GameConfig.WORLD.WIDTH, player.x));
+      player.y = Math.max(0, Math.min(GameConfig.WORLD.HEIGHT, player.y));
     });
   }
-
-  private static movePlayer(player: Player, dt: number): void {}
 }

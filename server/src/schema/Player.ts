@@ -5,8 +5,15 @@ export class Player extends Schema {
   @type("number") x: number = 0;
   @type("number") y: number = 0;
 
-  @type("boolean") left = false;
-  @type("boolean") right = false;
-  @type("boolean") up = false;
-  @type("boolean") down = false;
+  @type("boolean") left: boolean = false;
+  @type("boolean") right: boolean = false;
+  @type("boolean") up: boolean = false;
+  @type("boolean") down: boolean = false;
+
+  @type("number") lastProcessedSeq: number = 0;
+
+  public inputBuffer: Array<{
+    seq: number;
+    input: { left: boolean; right: boolean; up: boolean; down: boolean };
+  }> = [];
 }
