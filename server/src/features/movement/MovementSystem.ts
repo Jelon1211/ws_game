@@ -1,8 +1,8 @@
-import { State } from "../schema/State.js";
-import { GameConfig } from "../shared/configs/GameConfig.js";
+import { State } from "../../schema/State.js";
+import { GameConfig } from "../../shared/configs/GameConfig.js";
 
 export class MovementSystem {
-  static update(state: State, delta: number): void {
+  public update(state: State, delta: number): void {
     const dt = delta / 1000;
     const speed = GameConfig.PLAYER.BASE_SPEED;
 

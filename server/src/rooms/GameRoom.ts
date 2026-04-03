@@ -1,33 +1,43 @@
+// rooms/GameRoom.ts
 import { Room, Client } from "@colyseus/core";
 import { State } from "../schema/State.js";
 import { Player } from "../schema/Player.js";
-import { GameLoop } from "../systems/GameLoop.js";
+import { GameLoop } from "../core/GameLoop.js";
 import { GameConfig } from "../shared/configs/GameConfig.js";
-import { MsgTypes, RoomMessageMap } from "../shared/types/Message.js";
+import { SystemBuilder } from "../core/SystemBuilder.js";
+import { SystemRegister } from "../core/SystemRegister.js";
+import { RoomHandlerRegister } from "../core/RommHandlerRegister.js";
+import { RommHandlerBuilder } from "../core/RommHandlerBuilder.js";
+import { PlayerFactory } from "../features/player/PlayerFactory.js";
 
 export class GameRoom extends Room {
-  public override maxClients: number = 50;
+  public override maxClients = 50;
   public override state = new State();
+
+  private gameplayLoop: GameLoop;
+  private systemRegistry: SystemRegister;
+  private handlerRegistry: RoomHandlerRegister;
 
   public override onCreate(): void {
     console.log("🟢 GameRoom created");
 
-    this.registerMessageHandlers();
-    this.startGameLoop();
+    this.systemRegistry = SystemBuilder.createDefault();
+    this.gameplayLoop = new GameLoop(this.systemRegistry);
+    this.handlerRegistry = RommHandlerBuilder.createDefault();
+
+    this.handlerRegistry.bindAll(this.state, this.onMessage.bind(this));
+    this.setSimulationInterval(
+      (delta) => this.gameplayLoop.update(this.state, delta),
+      GameConfig.GAME.TICK_RATE,
+    );
   }
 
-  public override onJoin(
-    client: Client,
-    options: { nickname: Player["nickname"] },
-  ): void {
+  public override onJoin(client: Client, options: { nickname: string }): void {
     console.log("➕ Player joined:", client.sessionId);
-
-    const player = new Player();
-    player.x = Math.random() * GameConfig.WORLD.WIDTH;
-    player.y = Math.random() * GameConfig.WORLD.HEIGHT;
-    player.nickname = options.nickname;
-
-    this.state.players.set(client.sessionId, player);
+    this.state.players.set(
+      client.sessionId,
+      PlayerFactory.create(options.nickname),
+    );
   }
 
   public override onLeave(client: Client): void {
@@ -37,33 +47,5 @@ export class GameRoom extends Room {
 
   public override onDispose(): void {
     console.log("🧹 Room disposed");
-  }
-
-  private registerMessageHandlers(): void {
-    this.onMessage(
-      MsgTypes.Move,
-      (client, data: RoomMessageMap[MsgTypes.Move]) => {
-        const player = this.state.players.get(client.sessionId);
-        if (!player) {
-          return;
-        }
-        console.log("tutaj data kiedy i jaka: ", data);
-        player.inputBuffer.push({ seq: data.seq, input: data.input });
-
-        if (player.inputBuffer.length > 60) {
-          player.inputBuffer.splice(0, player.inputBuffer.length - 60);
-        }
-      },
-    );
-  }
-
-  private startGameLoop(): void {
-    this.setSimulationInterval((deltaTime: number) => {
-      this.updateRoom(deltaTime);
-    }, GameConfig.GAME.TICK_RATE);
-  }
-
-  private updateRoom(deltaTime: number): void {
-    GameLoop.update(this.state, deltaTime);
   }
 }
