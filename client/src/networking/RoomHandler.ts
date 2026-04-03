@@ -5,7 +5,6 @@ import { Player } from "../networking/schema/Player";
 import type { RoomMessageMap } from "../shared/types/Message";
 import type { EntityManager } from "../entities/EntityManager";
 import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
-import { RemotePlayerEntity } from "../entities/RemotePlayerEntity ";
 
 export class RoomHandler {
   private client: Client;

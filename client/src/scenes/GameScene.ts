@@ -31,7 +31,6 @@ export class GameScene extends Phaser.Scene {
     super(SceneKeys.Game);
   }
 
-  // TODO: tutaj poprawić przekazywanie danych
   async create(data: PlayerInitData) {
     this.initalizeSystems();
 
