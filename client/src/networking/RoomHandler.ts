@@ -45,13 +45,22 @@ export class RoomHandler {
     const callbacks = Callbacks.get(this.room);
 
     callbacks.onAdd("players", (player, sessionId) => {
-      const isLocal = sessionId === this.room?.sessionId;
+      const localId = this.room!.sessionId;
 
-      const entity = isLocal
-        ? new LocalPlayerEntity(this.scene, player.x, player.y)
-        : new RemotePlayerEntity(this.scene, player.x, player.y);
+      this.entityManager.createPlayer(
+        this.scene,
+        sessionId,
+        localId,
+        player.x,
+        player.y,
+      );
 
-      this.entityManager.addPlayer(sessionId, entity);
+      const entity = this.entityManager.getPlayer(sessionId);
+      if (!entity) {
+        console.warn("No entity found in RoomoHandler");
+        return;
+      }
+      const isLocal = sessionId === localId;
 
       callbacks.onChange(player, () => {
         if (isLocal) {

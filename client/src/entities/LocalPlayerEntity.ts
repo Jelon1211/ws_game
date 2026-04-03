@@ -1,12 +1,23 @@
 import type { TInput } from "../shared/types/Message";
 import { GameConfig } from "../shared/configs/GameConfig";
 import { PlayerEntity } from "./PlayerEntity";
+import type { PlayerInitData } from "src/types/Player";
 
 type PendingInput = { seq: number; input: TInput };
 
 export class LocalPlayerEntity extends PlayerEntity {
   private speed = GameConfig.PLAYER.BASE_SPEED;
   private pendingInputs: PendingInput[] = [];
+
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    options: PlayerInitData,
+  ) {
+    super(scene, x, y, options);
+    this.sprite.setTint(Number(options.color.replace("#", "0x")));
+  }
 
   public update(delta: number, input: TInput): void {
     this.applyInput(input, delta / 1000);

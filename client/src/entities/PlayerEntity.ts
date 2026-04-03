@@ -1,5 +1,6 @@
 import Phaser from "phaser";
-import type { TInput } from "src/types/Inputs";
+import type { TInput } from "../shared/types/Message";
+import type { PlayerInitData } from "src/types/Player";
 
 export class PlayerEntity {
   public sprite: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
@@ -11,6 +12,7 @@ export class PlayerEntity {
     private scene: Phaser.Scene,
     x: number,
     y: number,
+    options: PlayerInitData,
   ) {
     this.sprite = scene.physics.add.image(x, y, "player_ship");
 

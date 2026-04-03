@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { SceneKeys } from "../constants/SceneKeys";
 import { colyseusClient } from "../networking/ColyseusClient";
-import { Player } from "../networking/schema/Player";
 import { RoomHandler } from "../networking/RoomHandler";
 import { InputSystem } from "../systems/InputSystem";
 import { MsgTypes } from "../shared/types/Message";
@@ -12,7 +11,8 @@ import type {
 import { NetworkActionFactory } from "../networking/actions/NetworkActionFactory ";
 import { EntityManager } from "../entities/EntityManager";
 import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
-import type { MovementAction } from "src/networking/actions/MovementAction";
+import type { MovementAction } from "../networking/actions/MovementAction";
+import type { PlayerInitData } from "../types/Player";
 
 export class GameScene extends Phaser.Scene {
   private roomHandler!: RoomHandler;
@@ -31,16 +31,17 @@ export class GameScene extends Phaser.Scene {
     super(SceneKeys.Game);
   }
 
-  async create({ nickname }: { nickname: Player["nickname"] }) {
+  // TODO: tutaj poprawić przekazywanie danych
+  async create(data: PlayerInitData) {
     this.initalizeSystems();
 
     const client = colyseusClient.getClient();
 
-    this.entityManager = new EntityManager();
+    this.entityManager = new EntityManager(data);
 
     this.roomHandler = new RoomHandler(this, client, this.entityManager);
 
-    await this.roomHandler.joinOrCreateRoom(nickname);
+    await this.roomHandler.joinOrCreateRoom(data.nickname);
     this.actions = NetworkActionFactory.create(this.roomHandler);
 
     const sessionId = this.roomHandler.getRoom()!.sessionId;

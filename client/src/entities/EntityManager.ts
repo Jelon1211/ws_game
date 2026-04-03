@@ -1,9 +1,29 @@
+import type { PlayerInitData } from "src/types/Player";
 import type { PlayerEntity } from "./PlayerEntity";
+import { LocalPlayerEntity } from "./LocalPlayerEntity";
+import { RemotePlayerEntity } from "./RemotePlayerEntity ";
 
 export class EntityManager {
   private players: Record<string, PlayerEntity> = {};
+  private playerData: PlayerInitData;
 
-  public addPlayer(sessionId: string, entity: PlayerEntity) {
+  constructor(data: PlayerInitData) {
+    this.playerData = data;
+  }
+
+  public createPlayer(
+    scene: Phaser.Scene,
+    sessionId: string,
+    localId: string,
+    x: number,
+    y: number,
+  ) {
+    let entity: PlayerEntity;
+
+    sessionId === localId
+      ? (entity = new LocalPlayerEntity(scene, x, y, this.playerData))
+      : (entity = new RemotePlayerEntity(scene, x, y, this.playerData));
+
     this.players[sessionId] = entity;
   }
 

@@ -3,6 +3,7 @@ import { SceneKeys } from "../constants/SceneKeys";
 
 export class MenuScene extends Phaser.Scene {
   private nicknameInput: HTMLInputElement | null = null;
+  private colorInput: HTMLInputElement | null = null;
 
   constructor() {
     super(SceneKeys.Menu);
@@ -11,6 +12,7 @@ export class MenuScene extends Phaser.Scene {
   create(): void {
     this.createHTMLInput();
     this.createJoinButton();
+    this.createColorPicker();
   }
 
   private createHTMLInput(): void {
@@ -22,6 +24,19 @@ export class MenuScene extends Phaser.Scene {
     this.nicknameInput.style.transform = "translate(-50%, -50%)";
 
     document.body.appendChild(this.nicknameInput);
+  }
+
+  private createColorPicker(): void {
+    this.colorInput = document.createElement("input");
+    this.colorInput.type = "color";
+    this.colorInput.value = "#00ff00";
+
+    this.colorInput.style.position = "absolute";
+    this.colorInput.style.top = "60%";
+    this.colorInput.style.left = "50%";
+    this.colorInput.style.transform = "translate(-50%, -50%)";
+
+    document.body.appendChild(this.colorInput);
   }
 
   private createJoinButton(): void {
@@ -40,10 +55,12 @@ export class MenuScene extends Phaser.Scene {
         return console.warn("You need a nickname!");
       }
       const nickname = this.nicknameInput.value;
+      const color = this.colorInput?.value || "#00ff00";
 
       this.nicknameInput.remove();
+      this.colorInput?.remove();
 
-      this.scene.start(SceneKeys.Game, { nickname });
+      this.scene.start(SceneKeys.Game, { nickname, color });
       this.scene.launch(SceneKeys.UI);
     });
   }
