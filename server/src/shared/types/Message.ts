@@ -1,20 +1,31 @@
 export enum MsgTypes {
   Move = "move",
+  Shoot = "shoot",
 }
 
-export type TInput = {
+export type MoveMessage = {
+  seq: number;
+  clientTime: number;
+  input: TMoveInput;
+};
+
+export type ShootMessage = {
+  shoot: TShootInput;
+};
+
+export type RoomMessageMap = {
+  [MsgTypes.Move]: MoveMessage;
+  [MsgTypes.Shoot]: ShootMessage;
+};
+
+// inputs
+export type TMoveInput = {
   left: boolean;
   right: boolean;
   up: boolean;
   down: boolean;
 };
 
-export type MoveMessage = {
-  seq: number;
-  clientTime: number;
-  input: TInput;
-};
-
-export type RoomMessageMap = {
-  [MsgTypes.Move]: MoveMessage;
+export type TShootInput = {
+  space: boolean;
 };

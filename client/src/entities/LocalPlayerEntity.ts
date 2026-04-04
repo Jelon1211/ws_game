@@ -1,7 +1,7 @@
 import { GameConfig } from "../shared/configs/GameConfig";
 import { PlayerEntity } from "./PlayerEntity";
 import type { PlayerInitData } from "../types/Player";
-import type { TMoveInput } from "../types/Input";
+import type { TMoveInput } from "../shared/types/Message";
 
 type PendingInput = { seq: number; input: TMoveInput };
 

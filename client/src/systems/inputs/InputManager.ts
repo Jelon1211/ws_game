@@ -35,7 +35,6 @@ export class InputManager {
 
   dispatch(actions: IActions): void {
     for (const { system, msgType } of this.bindings) {
-      console.log(this.bindings);
       actions.update(msgType, system.poll());
     }
   }

@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import type { PlayerInitData } from "../types/Player";
-import type { TMoveInput } from "../types/Input";
+import type { TMoveInput } from "../shared/types/Message";
 
 export class PlayerEntity {
   public sprite: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;

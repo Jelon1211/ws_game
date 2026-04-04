@@ -1,5 +1,3 @@
-import type { TMoveInput, TShootInput } from "../../types/Input";
-
 export enum MsgTypes {
   Move = "move",
   Shoot = "shoot",
@@ -18,4 +16,16 @@ export type ShootMessage = {
 export type RoomMessageMap = {
   [MsgTypes.Move]: MoveMessage;
   [MsgTypes.Shoot]: ShootMessage;
+};
+
+// inputs
+export type TMoveInput = {
+  left: boolean;
+  right: boolean;
+  up: boolean;
+  down: boolean;
+};
+
+export type TShootInput = {
+  space: boolean;
 };

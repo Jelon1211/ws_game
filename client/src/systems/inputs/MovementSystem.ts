@@ -1,5 +1,5 @@
+import type { TMoveInput } from "../../shared/types/Message";
 import { InputSystem } from "./InputSystem";
-import type { TMoveInput } from "../../types/Input";
 
 export class MovementSystem extends InputSystem<TMoveInput> {
   poll(): TMoveInput {
