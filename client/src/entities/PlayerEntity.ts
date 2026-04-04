@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import type { TInput } from "../shared/types/Message";
-import type { PlayerInitData } from "src/types/Player";
+import type { PlayerInitData } from "../types/Player";
+import type { TMoveInput } from "../types/Input";
 
 export class PlayerEntity {
   public sprite: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
@@ -25,7 +25,7 @@ export class PlayerEntity {
     this.targetY = y;
   }
 
-  public update(delta: number, input: TInput | null = null) {
+  public update(delta: number, input: TMoveInput | null = null) {
     // always override
   }
 

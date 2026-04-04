@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { SceneKeys } from "../constants/SceneKeys";
 import { colyseusClient } from "../networking/ColyseusClient";
 import { RoomHandler } from "../networking/RoomHandler";
-import { InputSystem } from "../systems/InputSystem";
+import { MovementSystem } from "../systems/inputs/MovementSystem";
 import { MsgTypes } from "../shared/types/Message";
 import type {
   ActionMap,
@@ -13,18 +13,19 @@ import { EntityManager } from "../entities/EntityManager";
 import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
 import type { MovementAction } from "../networking/actions/MovementAction";
 import type { PlayerInitData } from "../types/Player";
+import { InputManager } from "../systems/inputs/InputManager";
 
 export class GameScene extends Phaser.Scene {
   private roomHandler!: RoomHandler;
   private isSceneReady: boolean = false;
 
-  // Systems
-  private inputSytem!: InputSystem;
+  // Systems managers
+  private inputManager!: InputManager;
 
-  // Action managers
+  // Network action managers
   private actions!: NetworkActionManager<ActionMap>;
 
-  // Entities
+  // Entities managers
   private entityManager!: EntityManager;
 
   constructor() {
@@ -56,26 +57,25 @@ export class GameScene extends Phaser.Scene {
     this.isSceneReady = true;
   }
 
-  update(time: number, delta: number): void {
+  update(_time: number, delta: number): void {
     if (!this.isSceneReady || !this.actions || !this.roomHandler) {
       return;
     }
+
+    this.inputManager.dispatch(this.actions);
+
     const sessionId = this.roomHandler.getRoom()!.sessionId;
-
-    const input = this.inputSytem.updateInput();
-
     const localPlayer = this.entityManager.getPlayer(sessionId);
 
     if (localPlayer instanceof LocalPlayerEntity) {
-      localPlayer.update(delta, input);
+      const movement = this.inputManager.poll(MovementSystem);
+      localPlayer.update(delta, movement);
     }
-
-    this.actions.update(MsgTypes.Move, input);
 
     this.entityManager.update(delta, sessionId);
   }
 
   private initalizeSystems() {
-    this.inputSytem = new InputSystem(this.input);
+    this.inputManager = new InputManager(this.input);
   }
 }

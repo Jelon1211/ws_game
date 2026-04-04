@@ -1,8 +1,8 @@
-import type { MsgTypes, TInput } from "../../shared/types/Message";
+import type { MsgTypes, TMoveInput } from "../../shared/types/Message";
 import type { INetworkAction } from "../../types/Network";
 
 export type ActionMap = {
-  [MsgTypes.Move]: INetworkAction<TInput>;
+  [MsgTypes.Move]: INetworkAction<TMoveInput>;
 };
 
 export class NetworkActionManager<

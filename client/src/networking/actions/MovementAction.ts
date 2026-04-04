@@ -1,15 +1,15 @@
-import type { MoveMessage, TInput } from "../../shared/types/Message";
+import type { MoveMessage, TMoveInput } from "../../shared/types/Message";
 import { NetworkAction } from "./NetworkAction";
 
-export class MovementAction extends NetworkAction<TInput, MoveMessage> {
+export class MovementAction extends NetworkAction<TMoveInput, MoveMessage> {
   private seq = 0;
-  private onSent?: (seq: number, intpu: TInput) => void;
+  private onSent?: (seq: number, intpu: TMoveInput) => void;
 
-  public setOnSent(cb: (seq: number, input: TInput) => void): void {
+  public setOnSent(cb: (seq: number, input: TMoveInput) => void): void {
     this.onSent = cb;
   }
 
-  protected override buildMessage(data: TInput, now: number): MoveMessage {
+  protected override buildMessage(data: TMoveInput, now: number): MoveMessage {
     return {
       seq: this.seq++,
       clientTime: now,
@@ -17,11 +17,11 @@ export class MovementAction extends NetworkAction<TInput, MoveMessage> {
     };
   }
 
-  protected override afterSend(message: MoveMessage, data: TInput): void {
+  protected override afterSend(message: MoveMessage, data: TMoveInput): void {
     this.onSent?.(message.seq, data);
   }
 
-  protected override shouldSend(data: TInput, now: number): boolean {
+  protected override shouldSend(data: TMoveInput, now: number): boolean {
     const changed =
       !this.lastSend ||
       data.left !== this.lastSend.left ||

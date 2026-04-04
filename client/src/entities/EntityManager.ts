@@ -1,4 +1,4 @@
-import type { PlayerInitData } from "src/types/Player";
+import type { PlayerInitData } from "../types/Player";
 import type { PlayerEntity } from "./PlayerEntity";
 import { LocalPlayerEntity } from "./LocalPlayerEntity";
 import { RemotePlayerEntity } from "./RemotePlayerEntity ";

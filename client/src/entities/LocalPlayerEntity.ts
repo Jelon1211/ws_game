@@ -1,9 +1,9 @@
-import type { TInput } from "../shared/types/Message";
 import { GameConfig } from "../shared/configs/GameConfig";
 import { PlayerEntity } from "./PlayerEntity";
-import type { PlayerInitData } from "src/types/Player";
+import type { PlayerInitData } from "../types/Player";
+import type { TMoveInput } from "../types/Input";
 
-type PendingInput = { seq: number; input: TInput };
+type PendingInput = { seq: number; input: TMoveInput };
 
 export class LocalPlayerEntity extends PlayerEntity {
   private speed = GameConfig.PLAYER.BASE_SPEED;
@@ -19,11 +19,11 @@ export class LocalPlayerEntity extends PlayerEntity {
     this.sprite.setTint(Number(options.color.replace("#", "0x")));
   }
 
-  public update(delta: number, input: TInput): void {
+  public update(delta: number, input: TMoveInput): void {
     this.applyInput(input, delta / 1000);
   }
 
-  public onInputSent(seq: number, input: TInput): void {
+  public onInputSent(seq: number, input: TMoveInput): void {
     this.pendingInputs.push({ seq, input: { ...input } });
   }
 
@@ -45,7 +45,7 @@ export class LocalPlayerEntity extends PlayerEntity {
     }
   }
 
-  private applyInput(input: TInput, dt: number): void {
+  private applyInput(input: TMoveInput, dt: number): void {
     const dx = (input.right ? 1 : 0) - (input.left ? 1 : 0);
     const dy = (input.down ? 1 : 0) - (input.up ? 1 : 0);
     const length = Math.hypot(dx, dy);
