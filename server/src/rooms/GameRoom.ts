@@ -1,7 +1,5 @@
-// rooms/GameRoom.ts
 import { Room, Client } from "@colyseus/core";
 import { State } from "../schema/State.js";
-import { Player } from "../schema/Player.js";
 import { GameLoop } from "../core/GameLoop.js";
 import { GameConfig } from "../shared/configs/GameConfig.js";
 import { SystemBuilder } from "../core/SystemBuilder.js";
