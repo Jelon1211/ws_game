@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
-
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "bundler",
+    "noEmit": true,
 
     "sourceMap": true,
 

@@ -12,12 +12,19 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
     "typescript": "^5.9.3",
     "vite": "^8.0.1"
   },
   "dependencies": {
-    "@colyseus/sdk": "^0.17.34",
     "@colyseus/schema": "^4.0.19",
-    "phaser": "^3.90.0"
+    "@colyseus/sdk": "^0.17.34",
+    "@tailwindcss/vite": "^4.2.2",
+    "phaser": "^3.90.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tailwindcss": "^4.2.2"
   }
 }
