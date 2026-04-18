@@ -14,6 +14,7 @@ import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
 import type { MovementAction } from "../networking/actions/MovementAction";
 import type { PlayerInitData } from "../types/Player";
 import { InputManager } from "../systems/inputs/InputManager";
+import { storeDispatcher } from "../store/StoreDispatcher";
 
 export class GameScene extends Phaser.Scene {
   private roomHandler!: RoomHandler;
@@ -39,7 +40,12 @@ export class GameScene extends Phaser.Scene {
 
     this.entityManager = new EntityManager(data);
 
-    this.roomHandler = new RoomHandler(this, client, this.entityManager);
+    this.roomHandler = new RoomHandler(
+      this,
+      client,
+      this.entityManager,
+      storeDispatcher,
+    );
 
     await this.roomHandler.joinOrCreateRoom(data);
     this.actions = NetworkActionFactory.create(this.roomHandler);

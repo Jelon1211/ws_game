@@ -13,7 +13,9 @@ export function App() {
   const gameRef = useRef<Game | null>(null);
 
   const startGame = () => {
-    if (!nickname.trim()) return;
+    if (!nickname.trim()) {
+      return;
+    }
 
     if (!gameRef.current) {
       gameRef.current = new Game({

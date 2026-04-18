@@ -1,13 +1,16 @@
+import { useGameStore } from "../store/useGameStore";
 import { GameContainer } from "./components/GameComponent";
 
 export function GameView() {
+  const { score } = useGameStore();
+
   return (
     <div className="grid h-screen w-screen grid-rows-[auto_1fr_auto] grid-cols-[250px_1fr_250px]">
       {/* TOP BAR */}
       <div className="col-span-3 border-b border-white bg-red-200">TOP</div>
 
       {/* LEFT */}
-      <div className="border-r border-white bg-blue-200"></div>
+      <div className="border-r border-white bg-blue-200">{score}</div>
 
       {/* GAME (Phaser) */}
       <GameContainer />

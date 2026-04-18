@@ -1,83 +1,53 @@
+// networking/RoomHandler.ts
 import Phaser from "phaser";
 import { Callbacks, type Client, type Room } from "@colyseus/sdk";
-import type { State } from "../networking/schema/State";
-import { Player } from "../networking/schema/Player";
+import type { State } from "./schema/State";
 import type { RoomMessageMap } from "../shared/types/Message";
 import type { EntityManager } from "../entities/EntityManager";
-import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
-import type { PlayerInitData } from "src/types/Player";
+import type { StoreDispatcher } from "../store/StoreDispatcher";
+import type { PlayerInitData } from "../types/Player";
+import { PlayerCallbackHandler } from "./handlers/PlayerCallbackHandler";
+import type { IRoomCallbackHandler } from "./handlers/IRoomCallbackHandler";
 
 export class RoomHandler {
-  private client: Client;
   private room: Room<State> | null = null;
-  private entityManager: EntityManager;
-  private scene: Phaser.Scene;
+  private handlers: IRoomCallbackHandler[] = [];
 
   constructor(
-    scene: Phaser.Scene,
-    client: Client,
-    entityManager: EntityManager,
-  ) {
-    this.scene = scene;
-    this.client = client;
-    this.entityManager = entityManager;
-  }
+    private scene: Phaser.Scene,
+    private client: Client,
+    private entityManager: EntityManager,
+    private storeDispatcher: StoreDispatcher,
+  ) {}
 
   public async joinOrCreateRoom(data: PlayerInitData) {
-    console.log("Joining room...");
-
     try {
       this.room = await this.client.joinOrCreate("my_room", {
         nickname: data.nickname,
       });
-
-      this.setupCallbacks();
+      this.setupHandlers();
     } catch (e) {
       console.error("Room join error:", e);
     }
   }
 
-  private setupCallbacks() {
+  private setupHandlers() {
     if (!this.room) {
       return;
     }
 
-    const callbacks = Callbacks.get(this.room);
-
-    callbacks.onAdd("players", (player, sessionId) => {
-      const localId = this.room!.sessionId;
-
-      this.entityManager.createPlayer(
+    this.handlers = [
+      new PlayerCallbackHandler(
         this.scene,
-        sessionId,
-        localId,
-        player.x,
-        player.y,
-      );
+        this.entityManager,
+        this.storeDispatcher,
+        () => this.room!.sessionId,
+      ),
+    ];
 
-      const entity = this.entityManager.getPlayer(sessionId);
-      if (!entity) {
-        console.warn("No entity found in RoomoHandler");
-        return;
-      }
-      const isLocal = sessionId === localId;
-
-      callbacks.onChange(player, () => {
-        if (isLocal) {
-          (entity as LocalPlayerEntity).reconcile(
-            player.x,
-            player.y,
-            player.lastProcessedSeq,
-          );
-        } else {
-          entity.setServerState(player.x, player.y);
-        }
-      });
-    });
-
-    callbacks.onRemove("players", (_player, sessionId) => {
-      this.entityManager.removePlayer(sessionId);
-    });
+    for (const handler of this.handlers) {
+      handler.register(this.room);
+    }
   }
 
   public async roomSend<T extends keyof RoomMessageMap>(
@@ -88,9 +58,7 @@ export class RoomHandler {
   }
 
   public getRoom(): Room<State> | void {
-    if (!this.room) {
-      return console.warn("No room initalized");
-    }
+    if (!this.room) return console.warn("No room initialized");
     return this.room;
   }
 }
