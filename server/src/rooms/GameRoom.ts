@@ -1,7 +1,6 @@
 // rooms/GameRoom.ts
-import { Room, Client } from "@colyseus/core";
+import { Room, Client, AuthContext } from "@colyseus/core";
 import { State } from "../schema/State.js";
-import { Player } from "../schema/Player.js";
 import { GameLoop } from "../core/GameLoop.js";
 import { GameConfig } from "../shared/configs/GameConfig.js";
 import { SystemBuilder } from "../core/SystemBuilder.js";
@@ -9,6 +8,7 @@ import { SystemRegister } from "../core/SystemRegister.js";
 import { RoomHandlerRegister } from "../core/RommHandlerRegister.js";
 import { RommHandlerBuilder } from "../core/RommHandlerBuilder.js";
 import { PlayerFactory } from "../features/player/PlayerFactory.js";
+import { PlayerInitData } from "./types.js";
 
 export class GameRoom extends Room {
   public override maxClients = 50;
@@ -32,12 +32,31 @@ export class GameRoom extends Room {
     );
   }
 
-  public override onJoin(client: Client, options: { nickname: string }): void {
-    console.log("➕ Player joined:", client.sessionId);
+  public override onJoin(client: Client, options: PlayerInitData): void {
+    console.log(
+      "➕ Player joined:",
+      client.sessionId,
+      " nickname: ",
+      options.nickname,
+    );
     this.state.players.set(
       client.sessionId,
       PlayerFactory.create(options.nickname),
     );
+  }
+
+  public override onAuth(
+    client: Client,
+    options: PlayerInitData,
+    context: AuthContext,
+  ): Boolean {
+    const nicknameTaken = Array.from(this.state.players.values()).some(
+      (player) => player.nickname === options.nickname,
+    );
+    if (nicknameTaken) {
+      throw new Error("Nickname already taken");
+    }
+    return true;
   }
 
   public override onLeave(client: Client): void {

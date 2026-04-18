@@ -40,7 +40,7 @@ export class GameScene extends Phaser.Scene {
 
     this.roomHandler = new RoomHandler(this, client, this.entityManager);
 
-    await this.roomHandler.joinOrCreateRoom(data.nickname);
+    await this.roomHandler.joinOrCreateRoom(data);
     this.actions = NetworkActionFactory.create(this.roomHandler);
 
     const sessionId = this.roomHandler.getRoom()!.sessionId;
