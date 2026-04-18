@@ -1,5 +1,3 @@
-import { MsgTypes } from "../shared/types/Message.js";
-
 type Handler<T> = (payload: T) => void;
 
 export class EventBus {

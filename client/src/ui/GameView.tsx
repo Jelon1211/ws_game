@@ -1,8 +1,13 @@
 import { useGameStore } from "../store/useGameStore";
+import { bus } from "../utils/eventBus";
 import { GameContainer } from "./components/GameComponent";
 
 export function GameView() {
   const { score } = useGameStore();
+
+  bus.on("*", (event) => {
+    console.log(event);
+  });
 
   return (
     <div className="grid h-screen w-screen grid-rows-[auto_1fr_auto] grid-cols-[250px_1fr_250px]">
