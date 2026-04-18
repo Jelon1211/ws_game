@@ -5,6 +5,7 @@ import { Player } from "../networking/schema/Player";
 import type { RoomMessageMap } from "../shared/types/Message";
 import type { EntityManager } from "../entities/EntityManager";
 import { LocalPlayerEntity } from "../entities/LocalPlayerEntity";
+import type { PlayerInitData } from "src/types/Player";
 
 export class RoomHandler {
   private client: Client;
@@ -22,12 +23,12 @@ export class RoomHandler {
     this.entityManager = entityManager;
   }
 
-  public async joinOrCreateRoom(nickname: Player["nickname"]) {
+  public async joinOrCreateRoom(data: PlayerInitData) {
     console.log("Joining room...");
 
     try {
       this.room = await this.client.joinOrCreate("my_room", {
-        nickname,
+        nickname: data.nickname,
       });
 
       this.setupCallbacks();
