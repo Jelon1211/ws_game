@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { SceneKeys } from "../constants/SceneKeys";
 import { assets } from "../assets/manifest";
+import type { PlayerInitData } from "../types/Player";
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -15,10 +16,10 @@ export class BootScene extends Phaser.Scene {
     });
   }
 
-  create(): void {
+  create(playerData: PlayerInitData): void {
     console.log("✅ Assets loaded");
 
-    this.scene.start(SceneKeys.Menu);
+    this.scene.start(SceneKeys.Game, playerData);
   }
 
   private loadAssets(): void {

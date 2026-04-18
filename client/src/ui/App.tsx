@@ -16,7 +16,10 @@ export function App() {
     if (!nickname.trim()) return;
 
     if (!gameRef.current) {
-      gameRef.current = new Game();
+      gameRef.current = new Game({
+        nickname,
+        color,
+      });
     }
 
     setGameStarted(true);

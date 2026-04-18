@@ -1,8 +1,6 @@
 import Phaser from "phaser";
 import { GameScene } from "../scenes/GameScene";
 import { BootScene } from "../scenes/BootScene";
-import { UIScene } from "../scenes/UIScene";
-import { MenuScene } from "../scenes/MenuScene";
 import { GameConfig } from "../shared/configs/GameConfig";
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
@@ -30,5 +28,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     forceSetTimeOut: true,
   },
 
-  scene: [BootScene, MenuScene, GameScene, UIScene],
+  scene: [BootScene, GameScene],
 };
