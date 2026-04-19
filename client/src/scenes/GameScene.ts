@@ -48,6 +48,7 @@ export class GameScene extends Phaser.Scene {
       client,
       this.entityManager,
       storeDispatcher,
+      this.tickManager,
     );
 
     await this.roomHandler.joinOrCreateRoom(data);
@@ -56,6 +57,7 @@ export class GameScene extends Phaser.Scene {
       this.tickManager,
     );
 
+    // TODO: this is coupling, to refactor
     const sessionId = this.roomHandler.getRoom()!.sessionId;
     const movementAction = this.actions.get(MsgTypes.Move) as MovementAction;
 

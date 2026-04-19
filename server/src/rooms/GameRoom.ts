@@ -14,6 +14,7 @@ export class GameRoom extends Room {
   public override maxClients = 50;
   public override state = new State();
 
+  private tick: number = 0;
   private gameplayLoop: GameLoop;
   private systemRegistry: SystemRegister;
   private handlerRegistry: RoomHandlerRegister;
@@ -21,15 +22,15 @@ export class GameRoom extends Room {
   public override onCreate(): void {
     console.log("🟢 GameRoom created");
 
-    this.systemRegistry = SystemBuilder.createDefault();
+    this.systemRegistry = SystemBuilder.createDefault(this, () => this.tick);
     this.gameplayLoop = new GameLoop(this.systemRegistry);
     this.handlerRegistry = RommHandlerBuilder.createDefault();
 
     this.handlerRegistry.bindAll(this.state, this.onMessage.bind(this));
-    this.setSimulationInterval(
-      (delta) => this.gameplayLoop.update(this.state, delta),
-      GameConfig.GAME.TICK_RATE,
-    );
+    this.setSimulationInterval((delta) => {
+      this.tick++;
+      this.gameplayLoop.update(this.state, delta);
+    }, GameConfig.GAME.TICK_RATE);
   }
 
   public override onJoin(client: Client, options: PlayerInitData): void {
@@ -43,6 +44,10 @@ export class GameRoom extends Room {
       client.sessionId,
       PlayerFactory.create(options.nickname),
     );
+
+    client.send("tick_sync", {
+      serverTick: this.tick,
+    });
   }
 
   public override onAuth(

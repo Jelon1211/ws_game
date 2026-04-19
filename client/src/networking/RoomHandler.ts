@@ -8,6 +8,8 @@ import type { StoreDispatcher } from "../store/StoreDispatcher";
 import type { PlayerInitData } from "../types/Player";
 import { PlayerCallbackHandler } from "./handlers/PlayerCallbackHandler";
 import type { IRoomCallbackHandler } from "./handlers/IRoomCallbackHandler";
+import type { TickManager } from "../systems/tick/TickManager";
+import { TickSyncCallbackHandler } from "./handlers/TickSyncCallbackHandler";
 
 export class RoomHandler {
   private room: Room<State> | null = null;
@@ -18,6 +20,7 @@ export class RoomHandler {
     private client: Client,
     private entityManager: EntityManager,
     private storeDispatcher: StoreDispatcher,
+    private tickManager: TickManager,
   ) {}
 
   public async joinOrCreateRoom(data: PlayerInitData) {
@@ -37,6 +40,7 @@ export class RoomHandler {
     }
 
     this.handlers = [
+      new TickSyncCallbackHandler(this.tickManager),
       new PlayerCallbackHandler(
         this.scene,
         this.entityManager,
