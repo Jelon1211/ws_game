@@ -5,11 +5,15 @@ export enum MsgTypes {
 
 export type MoveMessage = {
   seq: number;
+  tick: number;
   clientTime: number;
   input: TMoveInput;
 };
 
 export type ShootMessage = {
+  seq: number;
+  tick: number;
+  clientTime: number;
   shoot: TShootInput;
 };
 

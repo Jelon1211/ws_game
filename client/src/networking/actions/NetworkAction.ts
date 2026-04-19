@@ -17,7 +17,6 @@ export abstract class NetworkAction<TInput, TPayload = TInput> {
   public update(data: TInput) {
     const now = performance.now();
     if (this.shouldSend(data, now)) {
-      console.log("kiedy w action? ", data, now);
       const message = this.buildMessage(data, now);
       this.send(message);
       this.lastSend = structuredClone(data);

@@ -6,7 +6,7 @@ export function GameView() {
   const { score } = useGameStore();
 
   bus.on("*", (event) => {
-    console.log(event);
+    console.log("tu każdy event", event);
   });
 
   return (

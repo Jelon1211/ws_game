@@ -15,6 +15,8 @@ import type { MovementAction } from "../networking/actions/MovementAction";
 import type { PlayerInitData } from "../types/Player";
 import { InputManager } from "../systems/inputs/InputManager";
 import { storeDispatcher } from "../store/StoreDispatcher";
+import { TickManager } from "../systems/tick/TickManager";
+import { GameConfig } from "../shared/configs/GameConfig";
 
 export class GameScene extends Phaser.Scene {
   private roomHandler!: RoomHandler;
@@ -22,6 +24,7 @@ export class GameScene extends Phaser.Scene {
 
   // Systems managers
   private inputManager!: InputManager;
+  private tickManager!: TickManager;
 
   // Network action managers
   private actions!: NetworkActionManager<ActionMap>;
@@ -48,7 +51,10 @@ export class GameScene extends Phaser.Scene {
     );
 
     await this.roomHandler.joinOrCreateRoom(data);
-    this.actions = NetworkActionFactory.create(this.roomHandler);
+    this.actions = NetworkActionFactory.create(
+      this.roomHandler,
+      this.tickManager,
+    );
 
     const sessionId = this.roomHandler.getRoom()!.sessionId;
     const movementAction = this.actions.get(MsgTypes.Move) as MovementAction;
@@ -68,6 +74,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
+    this.tickManager.update();
     this.inputManager.dispatch(this.actions);
 
     const sessionId = this.roomHandler.getRoom()!.sessionId;
@@ -83,5 +90,6 @@ export class GameScene extends Phaser.Scene {
 
   private initalizeSystems() {
     this.inputManager = new InputManager(this.input);
+    this.tickManager = new TickManager(GameConfig.GAME.TICK_RATE);
   }
 }

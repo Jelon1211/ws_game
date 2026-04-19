@@ -7,7 +7,12 @@ export class ShootHandler implements IRoomHandler {
     onMessage<RoomMessageMap[MsgTypes.Shoot]>(
       MsgTypes.Shoot,
       (client, data) => {
-        console.log("Shoot message odebrany -> ", client, data);
+        const player = state.players.get(client.sessionId);
+        if (!player) {
+          return;
+        }
+
+        console.log("Shoot message odebrany -> ", data);
       },
     );
   }

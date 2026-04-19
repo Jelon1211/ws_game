@@ -1,9 +1,17 @@
 import type { MoveMessage, TMoveInput } from "../../shared/types/Message";
+import type { TickManager } from "../../systems/tick/TickManager";
 import { NetworkAction } from "./NetworkAction";
 
 export class MovementAction extends NetworkAction<TMoveInput, MoveMessage> {
   private seq = 0;
   private onSent?: (seq: number, intpu: TMoveInput) => void;
+
+  constructor(
+    send: (data: MoveMessage) => void,
+    private tickManager: TickManager,
+  ) {
+    super(send);
+  }
 
   public setOnSent(cb: (seq: number, input: TMoveInput) => void): void {
     this.onSent = cb;
@@ -12,6 +20,7 @@ export class MovementAction extends NetworkAction<TMoveInput, MoveMessage> {
   protected override buildMessage(data: TMoveInput, now: number): MoveMessage {
     return {
       seq: this.seq++,
+      tick: this.tickManager.getTick(),
       clientTime: now,
       input: { ...data },
     };

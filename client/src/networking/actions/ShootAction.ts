@@ -1,12 +1,21 @@
 import type { ShootMessage, TShootInput } from "../../shared/types/Message";
+import type { TickManager } from "../../systems/tick/TickManager";
 import { NetworkAction } from "./NetworkAction";
 
 export class ShootAction extends NetworkAction<TShootInput, ShootMessage> {
+  private onSent?: (seq: number, intpu: TShootInput) => void;
+
   private shootCooldown: number = 1000 / 3;
+  private seq: number = 0;
 
-  private onSent?: (intpu: TShootInput) => void;
+  constructor(
+    send: (data: ShootMessage) => void,
+    private tickManager: TickManager,
+  ) {
+    super(send);
+  }
 
-  public setOnSent(cb: (input: TShootInput) => void): void {
+  public setOnSent(cb: (seq: number, input: TShootInput) => void): void {
     this.onSent = cb;
   }
 
@@ -15,6 +24,9 @@ export class ShootAction extends NetworkAction<TShootInput, ShootMessage> {
     now: number,
   ): ShootMessage {
     return {
+      seq: this.seq++,
+      tick: this.tickManager.getTick(),
+      clientTime: now,
       shoot: {
         space: data.space,
       },
@@ -22,7 +34,7 @@ export class ShootAction extends NetworkAction<TShootInput, ShootMessage> {
   }
 
   protected override afterSend(message: ShootMessage, data: TShootInput): void {
-    this.onSent?.(data);
+    this.onSent?.(message.seq, data);
   }
 
   protected override shouldSend(data: TShootInput, now: number): boolean {
